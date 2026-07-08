@@ -16,6 +16,7 @@ const auth_module_1 = require("./auth/auth.module");
 const users_module_1 = require("./users/users.module");
 const transactions_module_1 = require("./transactions/transactions.module");
 const common_module_1 = require("./common/common.module");
+const public_module_1 = require("./public/public.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -29,7 +30,8 @@ exports.AppModule = AppModule = __decorate([
             auth_module_1.AuthModule,
             users_module_1.UsersModule,
             transactions_module_1.TransactionsModule,
-            common_module_1.CommonModule
+            common_module_1.CommonModule,
+            public_module_1.PublicModule
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

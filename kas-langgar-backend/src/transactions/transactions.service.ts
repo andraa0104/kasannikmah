@@ -220,6 +220,19 @@ export class TransactionsService {
     }
   }
 
+  async getAvailableDates() {
+    const dates: any[] = await this.prisma.$queryRaw`
+      SELECT DISTINCT YEAR(date) as year, MONTH(date) as month
+      FROM transactions
+      ORDER BY year DESC, month DESC
+    `
+
+    return dates.map(d => ({
+      year: Number(d.year),
+      month: Number(d.month)
+    }))
+  }
+
   private toTransactionResponseDto(transaction: any): TransactionResponseDto {
     return {
       id: transaction.id,

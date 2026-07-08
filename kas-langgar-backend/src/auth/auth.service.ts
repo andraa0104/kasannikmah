@@ -69,7 +69,7 @@ export class AuthService {
       username: user.username,
       name: user.name,
       role: user.role,
-      permissions: user.permissions || []
+      permissions: (user.permissions as string[]) || []
     }
 
     const access_token = this.jwtService.sign(payload, {
@@ -83,7 +83,7 @@ export class AuthService {
         username: user.username,
         name: user.name,
         role: user.role,
-        permissions: user.permissions || []
+        permissions: (user.permissions as string[]) || []
       }
     }
   }

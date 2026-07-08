@@ -28,5 +28,9 @@ export declare class TransactionsService {
         totalTransactions: number;
         transactions: TransactionResponseDto[];
     }>;
+    getAvailableDates(): Promise<{
+        year: number;
+        month: number;
+    }[]>;
     private toTransactionResponseDto;
 }

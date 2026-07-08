@@ -70,60 +70,78 @@
         <v-icon icon="mdi-history" class="mr-2" color="primary"></v-icon>
         Riwayat Transaksi
         <v-spacer></v-spacer>
-        <v-text-field
-          v-model="search"
-          append-inner-icon="mdi-magnify"
-          label="Cari..."
-          single-line
-          hide-details
-          variant="outlined"
-          density="compact"
-          bg-color="rgba(0,0,0,0.2)"
-          class="max-w-sm"
-          style="max-width: 300px;"
-        ></v-text-field>
+        <div class="d-flex gap-4">
+          <v-select
+            v-model="searchBy"
+            :items="searchOptions"
+            item-title="title"
+            item-value="value"
+            label="Cari Berdasarkan"
+            variant="outlined"
+            density="compact"
+            hide-details
+            bg-color="rgba(0,0,0,0.2)"
+            class="max-w-sm"
+            style="min-width: 150px;"
+          ></v-select>
+          <v-text-field
+            v-model="search"
+            append-inner-icon="mdi-magnify"
+            label="Cari..."
+            single-line
+            hide-details
+            variant="outlined"
+            density="compact"
+            bg-color="rgba(0,0,0,0.2)"
+            class="max-w-sm"
+            style="min-width: 200px;"
+            clearable
+          ></v-text-field>
+        </div>
       </v-card-title>
       
-      <v-table class="bg-transparent text-white" hover>
-        <thead>
-          <tr>
-            <th class="text-left text-grey">Tanggal</th>
-            <th class="text-left text-grey">Kategori</th>
-            <th class="text-left text-grey">Keterangan</th>
-            <th class="text-left text-grey">Tipe</th>
-            <th class="text-right text-grey">Jumlah (Rp)</th>
-            <th class="text-center text-grey" v-if="authStore.hasPermission('transactions:delete')">Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-if="transactionStore.loading">
-            <td colspan="6" class="text-center pa-4">
-              <v-progress-circular indeterminate color="primary"></v-progress-circular>
-            </td>
-          </tr>
-          <tr v-else-if="transactionStore.transactions.length === 0">
-            <td colspan="6" class="text-center pa-8 text-grey">Belum ada data transaksi</td>
-          </tr>
-          <tr v-else v-for="item in filteredTransactions" :key="item.id">
-            <td>{{ formatDate(item.date) }}</td>
-            <td>
-              <v-chip size="small" variant="tonal" :color="item.type === 'INCOME' ? 'success' : 'error'">
-                {{ item.category }}
-              </v-chip>
-            </td>
-            <td>{{ item.description || '-' }}</td>
-            <td>
-              <span :class="item.type === 'INCOME' ? 'text-success' : 'text-error'" class="font-weight-bold">
-                {{ item.type === 'INCOME' ? 'Masuk' : 'Keluar' }}
-              </span>
-            </td>
-            <td class="text-right font-weight-bold">{{ formatCurrency(Number(item.amount)) }}</td>
-            <td class="text-center" v-if="authStore.hasPermission('transactions:delete')">
-              <v-btn icon="mdi-delete" variant="text" color="error" size="small" @click="deleteItem(item.id)"></v-btn>
-            </td>
-          </tr>
-        </tbody>
-      </v-table>
+      <v-data-table
+        :headers="headers"
+        :items="filteredTransactions"
+        :loading="transactionStore.loading"
+        class="bg-transparent text-white custom-dashboard-table"
+        hover
+        v-model:items-per-page="itemsPerPage"
+        :items-per-page-options="itemsPerPageOptions"
+        v-model:page="page"
+      >
+        <!-- eslint-disable-next-line vue/valid-v-slot -->
+        <template #item.date="{ item }">
+          {{ formatDate(item.date) }}
+        </template>
+        <!-- eslint-disable-next-line vue/valid-v-slot -->
+        <template #item.category="{ item }">
+          <v-chip size="small" variant="tonal" :color="item.type === 'INCOME' ? 'success' : 'error'">
+            {{ item.category }}
+          </v-chip>
+        </template>
+        <!-- eslint-disable-next-line vue/valid-v-slot -->
+        <template #item.description="{ item }">
+          {{ item.description || '-' }}
+        </template>
+        <!-- eslint-disable-next-line vue/valid-v-slot -->
+        <template #item.type="{ item }">
+          <span :class="item.type === 'INCOME' ? 'text-success' : 'text-error'" class="font-weight-bold">
+            {{ item.type === 'INCOME' ? 'Masuk' : 'Keluar' }}
+          </span>
+        </template>
+        <!-- eslint-disable-next-line vue/valid-v-slot -->
+        <template #item.amount="{ item }">
+          <span class="font-weight-bold">{{ formatCurrency(Number(item.amount)) }}</span>
+        </template>
+        <!-- eslint-disable-next-line vue/valid-v-slot -->
+        <template #item.actions="{ item }">
+          <v-btn icon="mdi-delete" variant="text" color="error" size="small" @click="deleteItem(item.id)"></v-btn>
+        </template>
+        <template #no-data>
+          <div class="pa-8 text-center text-grey">Belum ada data transaksi</div>
+        </template>
+      </v-data-table>
     </v-card>
 
     <!-- Mobile List View -->
@@ -132,18 +150,32 @@
         <v-icon icon="mdi-history" class="mr-2" color="primary"></v-icon>
         <span class="text-h6 font-weight-bold text-white">Riwayat Transaksi</span>
       </div>
-      <v-text-field
-        v-model="search"
-        prepend-inner-icon="mdi-magnify"
-        label="Cari Transaksi..."
-        single-line
-        hide-details
-        variant="outlined"
-        density="compact"
-        bg-color="rgba(0,0,0,0.2)"
-        class="mb-4"
-        rounded="xl"
-      ></v-text-field>
+      <div class="d-flex flex-column gap-2 mb-4">
+        <v-select
+          v-model="searchBy"
+          :items="searchOptions"
+          item-title="title"
+          item-value="value"
+          label="Cari Berdasarkan"
+          variant="outlined"
+          density="compact"
+          hide-details
+          bg-color="rgba(0,0,0,0.2)"
+          rounded="xl"
+        ></v-select>
+        <v-text-field
+          v-model="search"
+          prepend-inner-icon="mdi-magnify"
+          label="Cari Transaksi..."
+          single-line
+          hide-details
+          variant="outlined"
+          density="compact"
+          bg-color="rgba(0,0,0,0.2)"
+          rounded="xl"
+          clearable
+        ></v-text-field>
+      </div>
 
       <div v-if="transactionStore.loading" class="text-center pa-4">
         <v-progress-circular indeterminate color="primary"></v-progress-circular>
@@ -153,7 +185,7 @@
       </div>
       <div v-else class="d-flex flex-column" style="gap: 12px;">
         <v-card
-          v-for="item in filteredTransactions"
+          v-for="item in paginatedTransactions"
           :key="item.id"
           class="glass-card pa-4 border-0"
           style="background: rgba(255, 255, 255, 0.04) !important;"
@@ -177,6 +209,29 @@
             </div>
           </div>
         </v-card>
+
+        <!-- Custom Mobile Pagination -->
+        <div v-if="pageCount > 1" class="d-flex flex-column align-center mt-4">
+          <v-pagination
+            v-model="page"
+            :length="pageCount"
+            active-color="primary"
+            density="compact"
+          ></v-pagination>
+          
+          <div class="mt-4 w-100 d-flex align-center justify-center">
+            <span class="text-caption text-grey mr-2">Tampilkan:</span>
+            <v-select
+              v-model="itemsPerPage"
+              :items="itemsPerPageOptions"
+              variant="outlined"
+              density="compact"
+              hide-details
+              bg-color="rgba(0,0,0,0.2)"
+              style="max-width: 100px;"
+            ></v-select>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -268,6 +323,22 @@ const authStore = useAuthStore()
 const transactionStore = useTransactionStore()
 
 const search = ref('')
+const searchBy = ref('description')
+const searchOptions = [
+  { title: 'Keterangan', value: 'description' },
+  { title: 'Kategori', value: 'category' }
+]
+
+const itemsPerPage = ref(5)
+const itemsPerPageOptions = [
+  { title: '5 Data', value: 5 },
+  { title: '10 Data', value: 10 },
+  { title: '25 Data', value: 25 },
+  { title: '50 Data', value: 50 },
+  { title: '100 Data', value: 100 }
+]
+const page = ref(1)
+
 const dialog = ref(false)
 const formRef = ref<any>(null)
 
@@ -277,6 +348,20 @@ const formData = ref({
   category: '',
   amount: '',
   description: ''
+})
+
+const headers = computed(() => {
+  const base = [
+    { title: 'Tanggal', key: 'date', sortable: true },
+    { title: 'Kategori', key: 'category', sortable: true },
+    { title: 'Keterangan', key: 'description', sortable: true },
+    { title: 'Tipe', key: 'type', sortable: true },
+    { title: 'Jumlah (Rp)', key: 'amount', align: 'end' as const, sortable: true }
+  ]
+  if (authStore.hasPermission('transactions:delete')) {
+    base.push({ title: 'Aksi', key: 'actions', sortable: false, align: 'center' as const })
+  }
+  return base
 })
 
 const formattedAmount = computed({
@@ -296,13 +381,25 @@ onMounted(() => {
 })
 
 const filteredTransactions = computed(() => {
-  if (!search.value) return transactionStore.transactions
-  
-  const s = search.value.toLowerCase()
-  return transactionStore.transactions.filter(t => 
-    t.category.toLowerCase().includes(s) || 
-    (t.description && t.description.toLowerCase().includes(s))
-  )
+  let result = transactionStore.transactions
+  if (search.value) {
+    const searchLower = search.value.toLowerCase()
+    result = result.filter(t => {
+      const val = t[searchBy.value]
+      return val && val.toLowerCase().includes(searchLower)
+    })
+  }
+  return result
+})
+
+const paginatedTransactions = computed(() => {
+  const start = (page.value - 1) * itemsPerPage.value
+  const end = start + itemsPerPage.value
+  return filteredTransactions.value.slice(start, end)
+})
+
+const pageCount = computed(() => {
+  return Math.ceil(filteredTransactions.value.length / itemsPerPage.value) || 1
 })
 
 const formatCurrency = (val: number) => {
@@ -337,3 +434,20 @@ const deleteItem = async (id: number) => {
   }
 }
 </script>
+
+<style scoped>
+.gap-4 { gap: 16px; }
+.gap-2 { gap: 8px; }
+
+:deep(.custom-dashboard-table) {
+  background: transparent !important;
+}
+:deep(.custom-dashboard-table th) {
+  background: transparent !important;
+  color: #9E9E9E !important;
+  border-bottom: 1px solid rgba(255,255,255,0.1) !important;
+}
+:deep(.custom-dashboard-table td) {
+  border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+}
+</style>

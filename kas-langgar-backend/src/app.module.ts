@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module'
 import { UsersModule } from './users/users.module'
 import { TransactionsModule } from './transactions/transactions.module'
 import { CommonModule } from './common/common.module'
+import { PublicModule } from './public/public.module'
 
 @Module({
   imports: [
@@ -17,7 +18,8 @@ import { CommonModule } from './common/common.module'
     AuthModule,
     UsersModule,
     TransactionsModule,
-    CommonModule
+    CommonModule,
+    PublicModule
   ],
   controllers: [AppController],
   providers: [AppService],
