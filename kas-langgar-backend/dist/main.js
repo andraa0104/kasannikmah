@@ -15,7 +15,8 @@ async function bootstrap() {
     }));
     app.useGlobalFilters(new http_exception_filter_1.HttpExceptionFilter());
     app.useGlobalInterceptors(new transform_interceptor_1.TransformInterceptor());
-    await app.listen(3000);
+    const port = process.env.PORT || 3000;
+    await app.listen(port);
+    bootstrap();
 }
-bootstrap();
 //# sourceMappingURL=main.js.map
