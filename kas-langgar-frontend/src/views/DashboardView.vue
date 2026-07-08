@@ -3,20 +3,54 @@
     <div class="d-flex flex-column flex-md-row align-start align-md-center justify-space-between mb-6" style="gap: 16px;">
       <div>
         <h1 class="text-h4 font-weight-bold text-white mb-1">Dashboard</h1>
-        <p class="text-grey-lighten-1">Ringkasan kas Langgar An-Nikmah bulan ini</p>
+        <p class="text-grey-lighten-1">Ringkasan kas Langgar An-Nikmah</p>
       </div>
-      <v-btn
-        v-if="authStore.hasPermission('transactions:create')"
-        color="primary"
-        prepend-icon="mdi-plus"
-        size="large"
-        rounded="lg"
-        elevation="4"
-        @click="dialog = true"
-        class="align-self-stretch align-self-md-auto"
-      >
-        Tambah Transaksi
-      </v-btn>
+      <div class="d-flex flex-wrap align-center gap-2">
+        <v-select
+          v-if="availableYears.length > 0"
+          v-model="currentMonth"
+          :items="availableMonths"
+          item-title="title"
+          item-value="value"
+          variant="solo-filled"
+          flat
+          rounded="pill"
+          density="compact"
+          hide-details
+          bg-color="rgba(255, 255, 255, 0.15)"
+          class="ios-input text-white"
+          style="min-width: 140px;"
+          @update:model-value="onFilterChange"
+        ></v-select>
+        
+        <v-select
+          v-if="availableYears.length > 0"
+          v-model="currentYear"
+          :items="availableYears"
+          variant="solo-filled"
+          flat
+          rounded="pill"
+          density="compact"
+          hide-details
+          bg-color="rgba(255, 255, 255, 0.15)"
+          class="ios-input text-white"
+          style="min-width: 120px;"
+          @update:model-value="onYearChange"
+        ></v-select>
+
+        <v-btn
+          v-if="authStore.hasPermission('transactions:create')"
+          color="primary"
+          prepend-icon="mdi-plus"
+          size="large"
+          rounded="pill"
+          elevation="0"
+          @click="dialog = true"
+          class="ios-btn align-self-stretch align-self-md-auto"
+        >
+          Tambah Transaksi
+        </v-btn>
+      </div>
     </div>
 
     <!-- Summary Cards -->
@@ -77,11 +111,13 @@
             item-title="title"
             item-value="value"
             label="Cari Berdasarkan"
-            variant="outlined"
+            variant="solo-filled"
+            flat
+            rounded="pill"
             density="compact"
             hide-details
-            bg-color="rgba(0,0,0,0.2)"
-            class="max-w-sm"
+            bg-color="rgba(255, 255, 255, 0.1)"
+            class="ios-input max-w-sm"
             style="min-width: 150px;"
           ></v-select>
           <v-text-field
@@ -90,10 +126,12 @@
             label="Cari..."
             single-line
             hide-details
-            variant="outlined"
+            variant="solo-filled"
+            flat
+            rounded="pill"
             density="compact"
-            bg-color="rgba(0,0,0,0.2)"
-            class="max-w-sm"
+            bg-color="rgba(255, 255, 255, 0.1)"
+            class="ios-input max-w-sm"
             style="min-width: 200px;"
             clearable
           ></v-text-field>
@@ -157,11 +195,13 @@
           item-title="title"
           item-value="value"
           label="Cari Berdasarkan"
-          variant="outlined"
+          variant="solo-filled"
+          flat
+          rounded="pill"
           density="compact"
           hide-details
-          bg-color="rgba(0,0,0,0.2)"
-          rounded="xl"
+          bg-color="rgba(255, 255, 255, 0.1)"
+          class="ios-input"
         ></v-select>
         <v-text-field
           v-model="search"
@@ -169,10 +209,12 @@
           label="Cari Transaksi..."
           single-line
           hide-details
-          variant="outlined"
+          variant="solo-filled"
+          flat
+          rounded="pill"
           density="compact"
-          bg-color="rgba(0,0,0,0.2)"
-          rounded="xl"
+          bg-color="rgba(255, 255, 255, 0.1)"
+          class="ios-input"
           clearable
         ></v-text-field>
       </div>
@@ -224,10 +266,13 @@
             <v-select
               v-model="itemsPerPage"
               :items="itemsPerPageOptions"
-              variant="outlined"
+              variant="solo-filled"
+              flat
+              rounded="pill"
               density="compact"
               hide-details
-              bg-color="rgba(0,0,0,0.2)"
+              bg-color="rgba(255, 255, 255, 0.1)"
+              class="ios-input"
               style="max-width: 100px;"
             ></v-select>
           </div>
@@ -316,6 +361,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import api from '../services/api'
 import { useAuthStore } from '../stores/auth'
 import { useTransactionStore } from '../stores/transaction'
 
@@ -338,6 +384,76 @@ const itemsPerPageOptions = [
   { title: '100 Data', value: 100 }
 ]
 const page = ref(1)
+
+interface AvailableDate {
+  year: number
+  month: number
+}
+const availableDates = ref<AvailableDate[]>([])
+const currentMonth = ref<number | null>(null)
+const currentYear = ref<number | null>(null)
+
+const availableYears = computed(() => {
+  const yearsSet = new Set(availableDates.value.map(d => d.year))
+  return Array.from(yearsSet).sort((a, b) => b - a)
+})
+
+const availableMonths = computed(() => {
+  if (!currentYear.value) return []
+  const monthsInYear = availableDates.value
+    .filter(d => d.year === currentYear.value)
+    .map(d => d.month)
+  
+  const uniqueMonths = Array.from(new Set(monthsInYear)).sort((a, b) => b - a)
+  
+  const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
+  return uniqueMonths.map(m => ({ title: monthNames[m - 1], value: m }))
+})
+
+const onYearChange = () => {
+  if (availableMonths.value.length > 0) {
+    currentMonth.value = availableMonths.value[0].value
+    onFilterChange()
+  }
+}
+
+const onFilterChange = () => {
+  if (currentMonth.value && currentYear.value) {
+    transactionStore.fetchSummary(currentMonth.value, currentYear.value)
+    transactionStore.fetchTransactions({ 
+      month: currentMonth.value, 
+      year: currentYear.value,
+      take: 1000
+    } as any)
+  }
+}
+
+const fetchAvailableDates = async () => {
+  try {
+    const response = await api.get('/public/transactions/available-dates')
+    availableDates.value = response.data.data || response.data || []
+
+    const now = new Date()
+    const currentRealYear = now.getFullYear()
+    const currentRealMonth = now.getMonth() + 1
+
+    // Ensure current month/year is in the availableDates array
+    const hasCurrentDate = availableDates.value.some(
+      d => d.year === currentRealYear && d.month === currentRealMonth
+    )
+    if (!hasCurrentDate) {
+      availableDates.value.push({ year: currentRealYear, month: currentRealMonth })
+    }
+
+    currentYear.value = currentRealYear
+    currentMonth.value = currentRealMonth
+    onFilterChange()
+  } catch (error) {
+    console.error('Error fetching available dates:', error)
+    transactionStore.fetchSummary()
+    transactionStore.fetchTransactions()
+  }
+}
 
 const dialog = ref(false)
 const formRef = ref<any>(null)
@@ -376,8 +492,7 @@ const formattedAmount = computed({
 })
 
 onMounted(() => {
-  transactionStore.fetchTransactions()
-  transactionStore.fetchSummary()
+  fetchAvailableDates()
 })
 
 const filteredTransactions = computed(() => {
@@ -424,13 +539,19 @@ const saveTransaction = async () => {
       dialog.value = false
       formRef.value.reset()
       formData.value.date = new Date().toISOString().substr(0, 10)
+      
+      // Update available dates and re-fetch to include new transaction
+      fetchAvailableDates()
     }
   }
 }
 
 const deleteItem = async (id: number) => {
   if (confirm('Apakah Anda yakin ingin menghapus transaksi ini?')) {
-    await transactionStore.deleteTransaction(id)
+    const success = await transactionStore.deleteTransaction(id)
+    if (success) {
+      fetchAvailableDates()
+    }
   }
 }
 </script>
@@ -449,5 +570,35 @@ const deleteItem = async (id: number) => {
 }
 :deep(.custom-dashboard-table td) {
   border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+}
+
+:deep(.ios-input .v-field) {
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05) !important;
+}
+:deep(.ios-input .v-field:hover) {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+}
+:deep(.ios-input.v-text-field--focused .v-field) {
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2) !important;
+}
+
+:deep(.ios-btn) {
+  text-transform: none !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.3px !important;
+  box-shadow: 0 8px 16px rgba(var(--v-theme-primary), 0.3) !important;
+  transition: all 0.3s ease !important;
+}
+:deep(.ios-btn:hover) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 20px rgba(var(--v-theme-primary), 0.4) !important;
+}
+:deep(.ios-btn:active) {
+  transform: translateY(1px);
+  box-shadow: 0 4px 8px rgba(var(--v-theme-primary), 0.3) !important;
 }
 </style>

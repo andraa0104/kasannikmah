@@ -12,7 +12,12 @@
       style="position: fixed; height: 100vh; top: 0; left: 0;"
     >
       <div class="pa-4 h-100">
-        <v-card class="glass-panel h-100 d-flex flex-column rounded-xl" elevation="8" style="overflow: hidden;" :class="{ 'is-rail': rail }">
+        <v-card 
+          class="glass-panel h-100 d-flex flex-column rounded-xl" 
+          elevation="8" 
+          style="overflow: hidden;" 
+          :class="[rail ? 'is-rail' : '', !display.mdAndUp.value ? (theme.global.name.value === 'dark' ? 'bg-dark-blur' : 'bg-light-blur') : '']"
+        >
           <!-- Top Actions: Toggle -->
           <div class="d-flex align-center px-2 pt-4 pb-2 justify-end">
             <v-btn
@@ -132,6 +137,18 @@ const handleLogout = () => {
   margin-inline-end: 0 !important;
   justify-content: center !important;
 }
+
+.bg-dark-blur {
+  backdrop-filter: blur(25px) saturate(200%) !important;
+  -webkit-backdrop-filter: blur(25px) saturate(200%) !important;
+  background-color: rgba(15, 23, 42, 0.9) !important;
+}
+
+.bg-light-blur {
+  backdrop-filter: blur(25px) saturate(200%) !important;
+  -webkit-backdrop-filter: blur(25px) saturate(200%) !important;
+  background-color: rgba(255, 255, 255, 0.9) !important;
+}
 </style>
 
 <style scoped>
@@ -143,5 +160,15 @@ const handleLogout = () => {
 <style scoped>
 .v-main {
   min-height: 100vh;
+}
+</style>
+
+<style>
+/* Style the overlay/scrim of the navigation drawer on mobile */
+.v-navigation-drawer__scrim {
+  backdrop-filter: blur(8px) saturate(120%);
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
+  background: rgba(0, 0, 0, 0.4) !important;
+  opacity: 1 !important;
 }
 </style>

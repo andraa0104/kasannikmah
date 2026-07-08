@@ -562,17 +562,21 @@ const fetchAvailableDates = async () => {
     const response = await api.get('/public/transactions/available-dates')
     availableDates.value = response.data.data || response.data || []
 
-    if (availableDates.value.length > 0) {
-      // Find latest year
-      const maxYear = Math.max(...availableDates.value.map(d => d.year))
-      // Find latest month in that year
-      const monthsInMaxYear = availableDates.value.filter(d => d.year === maxYear).map(d => d.month)
-      const maxMonth = Math.max(...monthsInMaxYear)
+    const now = new Date()
+    const currentRealYear = now.getFullYear()
+    const currentRealMonth = now.getMonth() + 1
 
-      currentYear.value = maxYear
-      currentMonth.value = maxMonth
-      await fetchPublicData()
+    // Ensure current month/year is in the availableDates array
+    const hasCurrentDate = availableDates.value.some(
+      d => d.year === currentRealYear && d.month === currentRealMonth
+    )
+    if (!hasCurrentDate) {
+      availableDates.value.push({ year: currentRealYear, month: currentRealMonth })
     }
+
+    currentYear.value = currentRealYear
+    currentMonth.value = currentRealMonth
+    await fetchPublicData()
   } catch (error) {
     console.error('Error fetching available dates:', error)
   }

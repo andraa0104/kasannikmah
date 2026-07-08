@@ -207,7 +207,23 @@ export class TransactionsService {
       .filter(t => t.type === 'EXPENSE')
       .reduce((sum, t) => sum + parseFloat(t.amount.toString()), 0)
 
-    const balance = income - expense
+    // Hitung saldo akhir keseluruhan (all-time balance) tanpa terpengaruh filter bulan
+    const aggregates = await this.prisma.transaction.groupBy({
+      by: ['type'],
+      _sum: {
+        amount: true
+      }
+    })
+    
+    let allTimeIncome = 0
+    let allTimeExpense = 0
+    
+    aggregates.forEach(agg => {
+      if (agg.type === 'INCOME') allTimeIncome = Number(agg._sum.amount || 0)
+      if (agg.type === 'EXPENSE') allTimeExpense = Number(agg._sum.amount || 0)
+    })
+    
+    const balance = allTimeIncome - allTimeExpense
 
     return {
       month,
