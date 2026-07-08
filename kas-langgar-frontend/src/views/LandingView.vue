@@ -470,7 +470,7 @@ const scrollTo = (id: string) => {
 }
 
 const loading = ref(false)
-const transactions = ref([])
+const transactions = ref<any[]>([])
 const summary = ref({
   income: 0,
   expense: 0,
@@ -500,7 +500,7 @@ const filteredTransactions = computed(() => {
   if (search.value) {
     const searchLower = search.value.toLowerCase()
     result = result.filter(t => {
-      const val = t[searchBy.value]
+      const val = (t as any)[searchBy.value]
       return val && val.toLowerCase().includes(searchLower)
     })
   }

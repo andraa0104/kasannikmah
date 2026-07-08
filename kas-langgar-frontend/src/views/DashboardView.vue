@@ -287,7 +287,7 @@
               prefix="Rp"
               variant="outlined"
               color="primary"
-              :rules="[v => !!v || 'Jumlah wajib diisi', v => Number(formData.amount) > 0 || 'Jumlah harus lebih dari 0']"
+              :rules="[v => !!v || 'Jumlah wajib diisi', _v => Number(formData.amount) > 0 || 'Jumlah harus lebih dari 0']"
               bg-color="rgba(0,0,0,0.1)"
               class="mb-2"
               rounded="xl"
@@ -359,9 +359,9 @@ const headers = computed(() => {
     { title: 'Jumlah (Rp)', key: 'amount', align: 'end' as const, sortable: true }
   ]
   if (authStore.hasPermission('transactions:delete')) {
-    base.push({ title: 'Aksi', key: 'actions', sortable: false, align: 'center' as const })
+    base.push({ title: 'Aksi', key: 'actions', sortable: false, align: 'center' as any })
   }
-  return base
+  return base as any
 })
 
 const formattedAmount = computed({
@@ -385,7 +385,7 @@ const filteredTransactions = computed(() => {
   if (search.value) {
     const searchLower = search.value.toLowerCase()
     result = result.filter(t => {
-      const val = t[searchBy.value]
+      const val = (t as any)[searchBy.value]
       return val && val.toLowerCase().includes(searchLower)
     })
   }
