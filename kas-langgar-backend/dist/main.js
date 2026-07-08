@@ -17,6 +17,6 @@ async function bootstrap() {
     app.useGlobalInterceptors(new transform_interceptor_1.TransformInterceptor());
     const port = process.env.PORT || 3000;
     await app.listen(port);
-    bootstrap();
 }
+bootstrap();
 //# sourceMappingURL=main.js.map
