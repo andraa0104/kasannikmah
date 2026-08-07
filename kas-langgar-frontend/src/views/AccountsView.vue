@@ -132,9 +132,9 @@
           ></v-text-field>
 
           <v-text-field 
-            v-model.number="accountForm.balance" 
-            label="Saldo Awal (Rp)" 
-            type="number" 
+            v-model="displayBalance" 
+            label="Saldo Awal" 
+            prefix="Rp"
             variant="outlined" 
             density="compact" 
             class="mb-3"
@@ -195,9 +195,9 @@
           ></v-select>
 
           <v-text-field 
-            v-model.number="transferForm.amount" 
-            label="Jumlah Transfer (Rp)" 
-            type="number" 
+            v-model="displayTransferAmount" 
+            label="Jumlah Transfer" 
+            prefix="Rp"
             variant="outlined" 
             density="compact" 
             required 
@@ -261,6 +261,28 @@ const transferForm = ref({
   amount: 0,
   description: '',
   date: new Date().toISOString().split('T')[0]
+})
+
+const displayBalance = computed({
+  get: () => {
+    if (!accountForm.value.balance) return '0'
+    return new Intl.NumberFormat('id-ID').format(accountForm.value.balance)
+  },
+  set: (val: string) => {
+    const raw = String(val).replace(/\D/g, '')
+    accountForm.value.balance = Number(raw) || 0
+  }
+})
+
+const displayTransferAmount = computed({
+  get: () => {
+    if (!transferForm.value.amount) return '0'
+    return new Intl.NumberFormat('id-ID').format(transferForm.value.amount)
+  },
+  set: (val: string) => {
+    const raw = String(val).replace(/\D/g, '')
+    transferForm.value.amount = Number(raw) || 0
+  }
 })
 
 onMounted(async () => {
