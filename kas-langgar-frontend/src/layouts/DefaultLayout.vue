@@ -18,8 +18,20 @@
           style="overflow: hidden;" 
           :class="[rail ? 'is-rail' : '', !display.mdAndUp.value ? (theme.global.name.value === 'dark' ? 'bg-dark-blur' : 'bg-light-blur') : '']"
         >
-          <!-- Top Actions: Toggle -->
-          <div class="d-flex align-center px-2 pt-4 pb-2 justify-end">
+          <!-- Top Actions: Theme Toggle & Sidebar Rail -->
+          <div class="d-flex align-center px-3 pt-4 pb-2" :class="rail ? 'justify-center flex-column gap-2' : 'justify-space-between'">
+            <v-btn
+              icon
+              variant="tonal"
+              :color="theme.global.name.value === 'dark' ? 'warning' : 'primary'"
+              size="small"
+              @click="toggleTheme"
+              class="rounded-xl"
+              title="Ganti Tema (Mode Terang / Gelap)"
+            >
+              <v-icon>{{ theme.global.name.value === 'dark' ? 'mdi-weather-night' : 'mdi-white-balance-sun' }}</v-icon>
+            </v-btn>
+
             <v-btn
               v-if="display.mdAndUp.value"
               icon
@@ -28,7 +40,6 @@
               size="small"
               @click.stop="rail = !rail"
               class="rounded-xl"
-              :class="{ 'mb-2': rail, 'mx-auto': rail }"
             >
               <v-icon>{{ rail ? 'mdi-chevron-right' : 'mdi-chevron-left' }}</v-icon>
             </v-btn>
@@ -47,33 +58,33 @@
 
           <v-divider class="my-2 mx-4 border-opacity-25"></v-divider>
 
-            <v-list density="compact" nav class="flex-grow-1">
-              <v-list-item prepend-icon="mdi-view-dashboard" value="dashboard" :to="{ name: 'dashboard' }" color="primary" class="rounded-lg mb-1">
-                <template v-slot:title>
-                  <div v-show="!rail" class="text-wrap" style="line-height: 1.2;">Dashboard</div>
-                </template>
-              </v-list-item>
-              <v-list-item v-if="authStore.hasPermission('reports:read')" prepend-icon="mdi-file-chart" value="reports" :to="{ name: 'reports' }" color="primary" class="rounded-lg mb-1">
-                <template v-slot:title>
-                  <div v-show="!rail" class="text-wrap" style="line-height: 1.2;">Laporan & Jurnal</div>
-                </template>
-              </v-list-item>
-              <v-list-item v-if="authStore.hasPermission('accounts:read')" prepend-icon="mdi-bank" value="accounts" :to="{ name: 'accounts' }" color="primary" class="rounded-lg mb-1">
-                <template v-slot:title>
-                  <div v-show="!rail" class="text-wrap" style="line-height: 1.2;">Kas & Rekening</div>
-                </template>
-              </v-list-item>
-              <v-list-item v-if="authStore.hasPermission('users:read')" prepend-icon="mdi-account-group" value="users" :to="{ name: 'users' }" color="primary" class="rounded-lg mb-1">
-                <template v-slot:title>
-                  <div v-show="!rail" class="text-wrap" style="line-height: 1.2;">Manajemen Pengurus</div>
-                </template>
-              </v-list-item>
-              <v-list-item prepend-icon="mdi-cog" value="settings" :to="{ name: 'settings' }" color="primary" class="rounded-lg mb-1">
-                <template v-slot:title>
-                  <div v-show="!rail" class="text-wrap" style="line-height: 1.2;">Pengaturan</div>
-                </template>
-              </v-list-item>
-            </v-list>
+          <v-list density="compact" nav class="flex-grow-1">
+            <v-list-item prepend-icon="mdi-view-dashboard" value="dashboard" :to="{ name: 'dashboard' }" color="primary" class="rounded-lg mb-1">
+              <template v-slot:title>
+                <div v-show="!rail" class="text-wrap" style="line-height: 1.2;">Dashboard</div>
+              </template>
+            </v-list-item>
+            <v-list-item v-if="authStore.hasPermission('reports:read')" prepend-icon="mdi-file-chart" value="reports" :to="{ name: 'reports' }" color="primary" class="rounded-lg mb-1">
+              <template v-slot:title>
+                <div v-show="!rail" class="text-wrap" style="line-height: 1.2;">Laporan & Jurnal</div>
+              </template>
+            </v-list-item>
+            <v-list-item v-if="authStore.hasPermission('accounts:read')" prepend-icon="mdi-bank" value="accounts" :to="{ name: 'accounts' }" color="primary" class="rounded-lg mb-1">
+              <template v-slot:title>
+                <div v-show="!rail" class="text-wrap" style="line-height: 1.2;">Kas & Rekening</div>
+              </template>
+            </v-list-item>
+            <v-list-item v-if="authStore.hasPermission('users:read')" prepend-icon="mdi-account-group" value="users" :to="{ name: 'users' }" color="primary" class="rounded-lg mb-1">
+              <template v-slot:title>
+                <div v-show="!rail" class="text-wrap" style="line-height: 1.2;">Manajemen Pengurus</div>
+              </template>
+            </v-list-item>
+            <v-list-item prepend-icon="mdi-cog" value="settings" :to="{ name: 'settings' }" color="primary" class="rounded-lg mb-1">
+              <template v-slot:title>
+                <div v-show="!rail" class="text-wrap" style="line-height: 1.2;">Pengaturan</div>
+              </template>
+            </v-list-item>
+          </v-list>
           
           <div class="pa-3 mt-auto mb-2">
             <v-btn block color="error" variant="tonal" prepend-icon="mdi-logout" @click="handleLogout" class="rounded-xl">
@@ -120,11 +131,15 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 onMounted(() => {
-  const savedTheme = localStorage.getItem('theme')
-  if (savedTheme) {
-    theme.global.name.value = savedTheme
-  }
+  const savedTheme = localStorage.getItem('theme') || 'light'
+  theme.global.name.value = savedTheme
 })
+
+const toggleTheme = () => {
+  const nextTheme = theme.global.name.value === 'dark' ? 'light' : 'dark'
+  theme.global.name.value = nextTheme
+  localStorage.setItem('theme', nextTheme)
+}
 
 const handleLogout = () => {
   authStore.logout()
@@ -158,6 +173,10 @@ const handleLogout = () => {
   backdrop-filter: blur(25px) saturate(200%) !important;
   -webkit-backdrop-filter: blur(25px) saturate(200%) !important;
   background-color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.gap-2 {
+  gap: 8px;
 }
 </style>
 

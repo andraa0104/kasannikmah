@@ -70,10 +70,14 @@
     </v-card>
 
     <!-- Modal Tambah Rekening -->
-    <v-dialog v-model="showAccountModal" max-width="480" :theme="isDarkTheme ? 'dark' : 'light'">
-      <v-card class="pa-6 rounded-xl modal-card-fixed" :class="isDarkTheme ? 'modal-dark' : 'modal-light'">
+    <v-dialog v-model="showAccountModal" max-width="480">
+      <v-card 
+        class="pa-6 rounded-xl modal-card-fixed"
+        :class="isDarkTheme ? 'modal-dark' : 'modal-light'"
+        :style="isDarkTheme ? 'background-color: #1E222B !important; color: #FFFFFF !important;' : 'background-color: #FFFFFF !important; color: #121212 !important;'"
+      >
         <div class="d-flex align-center justify-space-between mb-4">
-          <h3 class="text-h6 font-weight-bold modal-title">Tambah Rekening / Kas Baru</h3>
+          <h3 class="text-h6 font-weight-bold" :style="isDarkTheme ? 'color: #FFFFFF !important;' : 'color: #121212 !important;'">Tambah Rekening / Kas Baru</h3>
           <v-btn icon="mdi-close" variant="text" size="small" :color="isDarkTheme ? 'white' : 'black'" @click="showAccountModal = false"></v-btn>
         </div>
 
@@ -148,10 +152,14 @@
     </v-dialog>
 
     <!-- Modal Transfer Saldo -->
-    <v-dialog v-model="showTransferModal" max-width="480" :theme="isDarkTheme ? 'dark' : 'light'">
-      <v-card class="pa-6 rounded-xl modal-card-fixed" :class="isDarkTheme ? 'modal-dark' : 'modal-light'">
+    <v-dialog v-model="showTransferModal" max-width="480">
+      <v-card 
+        class="pa-6 rounded-xl modal-card-fixed"
+        :class="isDarkTheme ? 'modal-dark' : 'modal-light'"
+        :style="isDarkTheme ? 'background-color: #1E222B !important; color: #FFFFFF !important;' : 'background-color: #FFFFFF !important; color: #121212 !important;'"
+      >
         <div class="d-flex align-center justify-space-between mb-4">
-          <h3 class="text-h6 font-weight-bold modal-title">Transfer Saldo Antar Rekening</h3>
+          <h3 class="text-h6 font-weight-bold" :style="isDarkTheme ? 'color: #FFFFFF !important;' : 'color: #121212 !important;'">Transfer Saldo Antar Rekening</h3>
           <v-btn icon="mdi-close" variant="text" size="small" :color="isDarkTheme ? 'white' : 'black'" @click="showTransferModal = false"></v-btn>
         </div>
 
@@ -312,10 +320,7 @@ const formatDate = (dateStr: string) => {
   border: 1px solid rgba(0, 0, 0, 0.1) !important;
 }
 
-.modal-light .modal-title {
-  color: #121212 !important;
-}
-
+.modal-light :deep(h3),
 .modal-light :deep(.v-card-text),
 .modal-light :deep(label),
 .modal-light :deep(span) {
@@ -344,10 +349,7 @@ const formatDate = (dateStr: string) => {
   border: 1px solid rgba(255, 255, 255, 0.15) !important;
 }
 
-.modal-dark .modal-title {
-  color: #FFFFFF !important;
-}
-
+.modal-dark :deep(h3),
 .modal-dark :deep(.v-card-text),
 .modal-dark :deep(label),
 .modal-dark :deep(span) {
