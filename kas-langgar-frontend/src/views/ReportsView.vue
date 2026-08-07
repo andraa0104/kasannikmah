@@ -3,8 +3,8 @@
     <!-- Header -->
     <div class="d-flex flex-column flex-md-row justify-space-between align-start align-md-center mb-6">
       <div>
-        <h1 class="text-h4 font-weight-bold text-white mb-1">Laporan Keuangan & Jurnal</h1>
-        <p class="text-body-2 text-grey">Transparansi pembukuan, jurnal umum berpasangan, dan posisi kas langgar.</p>
+        <h1 class="text-h4 font-weight-bold mb-1" :class="isDarkTheme ? 'text-white' : 'text-black'">Laporan Keuangan & Jurnal</h1>
+        <p class="text-body-2" :class="isDarkTheme ? 'text-grey' : 'text-grey-darken-1'">Transparansi pembukuan, jurnal umum berpasangan, dan posisi kas langgar.</p>
       </div>
 
       <div class="d-flex align-center gap-3 mt-4 mt-md-0">
@@ -59,7 +59,7 @@
     </div>
 
     <!-- Tabs Navigation -->
-    <v-tabs v-model="tab" color="primary" class="mb-6 border-b border-grey-darken-3">
+    <v-tabs v-model="tab" color="primary" class="mb-6 border-b" :class="isDarkTheme ? 'border-dark' : 'border-light'">
       <v-tab value="balance">Posisi Keuangan (Neraca)</v-tab>
       <v-tab value="activity">Laporan Aktivitas (Laba Rugi)</v-tab>
       <v-tab value="journal">Jurnal Umum (Debet / Kredit)</v-tab>
@@ -70,48 +70,54 @@
       <v-window-item value="balance">
         <v-row class="mb-6" v-if="reportStore.balanceSheet">
           <v-col cols="12" md="6">
-            <v-card class="glass-card pa-6 rounded-xl border-0 h-100">
+            <v-card 
+              class="pa-6 rounded-xl border h-100"
+              :class="isDarkTheme ? 'glass-card text-white border-dark' : 'bg-white text-black border-light elevation-2'"
+            >
               <div class="d-flex align-center mb-4">
                 <v-icon icon="mdi-bank" color="primary" size="28" class="mr-3"></v-icon>
                 <div>
-                  <h3 class="text-h6 font-weight-bold text-white">Aset Kas & Rekening Bank</h3>
-                  <div class="text-caption text-grey">Total sisa saldo per rekening</div>
+                  <h3 class="text-h6 font-weight-bold" :class="isDarkTheme ? 'text-white' : 'text-black'">Aset Kas & Rekening Bank</h3>
+                  <div class="text-caption" :class="isDarkTheme ? 'text-grey' : 'text-grey-darken-1'">Total sisa saldo per rekening</div>
                 </div>
               </div>
-              <v-divider class="mb-4 border-grey-darken-3"></v-divider>
+              <v-divider class="mb-4" :class="isDarkTheme ? 'border-dark' : 'border-light'"></v-divider>
               <div v-for="asset in reportStore.balanceSheet.assets" :key="asset.id" class="d-flex justify-space-between align-center mb-3">
                 <div>
-                  <div class="font-weight-bold text-white">{{ asset.name }}</div>
-                  <div class="text-caption text-grey">{{ asset.type === 'CASH' ? 'Kas Tunai' : `Bank (${asset.bankName || ''})` }}</div>
+                  <div class="font-weight-bold" :class="isDarkTheme ? 'text-white' : 'text-black'">{{ asset.name }}</div>
+                  <div class="text-caption" :class="isDarkTheme ? 'text-grey' : 'text-grey-darken-1'">{{ asset.type === 'CASH' ? 'Kas Tunai' : `Bank (${asset.bankName || ''})` }}</div>
                 </div>
                 <div class="font-weight-black text-subtitle-1 text-success">
                   {{ formatCurrency(asset.balance) }}
                 </div>
               </div>
-              <v-divider class="my-4 border-grey-darken-3"></v-divider>
+              <v-divider class="my-4" :class="isDarkTheme ? 'border-dark' : 'border-light'"></v-divider>
               <div class="d-flex justify-space-between align-center">
-                <span class="font-weight-bold text-white">Total Aset Kas:</span>
+                <span class="font-weight-bold" :class="isDarkTheme ? 'text-white' : 'text-black'">Total Aset Kas:</span>
                 <span class="font-weight-black text-h5 text-primary">{{ formatCurrency(reportStore.balanceSheet.totalAssets) }}</span>
               </div>
             </v-card>
           </v-col>
 
           <v-col cols="12" md="6">
-            <v-card class="glass-card pa-6 rounded-xl border-0 h-100">
+            <v-card 
+              class="pa-6 rounded-xl border h-100"
+              :class="isDarkTheme ? 'glass-card text-white border-dark' : 'bg-white text-black border-light elevation-2'"
+            >
               <div class="d-flex align-center mb-4">
                 <v-icon icon="mdi-folder-account" color="warning" size="28" class="mr-3"></v-icon>
                 <div>
-                  <h3 class="text-h6 font-weight-bold text-white">Saldo Per Pos Dana</h3>
-                  <div class="text-caption text-grey">Pemisahan dana terikat & kas umum</div>
+                  <h3 class="text-h6 font-weight-bold" :class="isDarkTheme ? 'text-white' : 'text-black'">Saldo Per Pos Dana</h3>
+                  <div class="text-caption" :class="isDarkTheme ? 'text-grey' : 'text-grey-darken-1'">Pemisahan dana terikat & kas umum</div>
                 </div>
               </div>
-              <v-divider class="mb-4 border-grey-darken-3"></v-divider>
+              <v-divider class="mb-4" :class="isDarkTheme ? 'border-dark' : 'border-light'"></v-divider>
               <div v-for="fund in reportStore.balanceSheet.fundBalances" :key="fund.id" class="d-flex justify-space-between align-center mb-3">
                 <div>
-                  <div class="font-weight-bold text-white">{{ fund.name }}</div>
-                  <v-chip size="x-small" :color="getFundColor(fund.fundType)" class="mt-1">{{ fund.fundType }}</v-chip>
+                  <div class="font-weight-bold" :class="isDarkTheme ? 'text-white' : 'text-black'">{{ fund.name }}</div>
+                  <v-chip size="x-small" :color="getFundColor(fund.fundType)" class="mt-1 font-weight-bold">{{ fund.fundType }}</v-chip>
                 </div>
-                <div class="font-weight-black text-subtitle-1" :class="fund.balance >= 0 ? 'text-white' : 'text-error'">
+                <div class="font-weight-black text-subtitle-1" :class="fund.balance >= 0 ? (isDarkTheme ? 'text-white' : 'text-black') : 'text-error'">
                   {{ formatCurrency(fund.balance) }}
                 </div>
               </div>
@@ -122,16 +128,25 @@
 
       <!-- Tab 2: Laporan Aktivitas -->
       <v-window-item value="activity">
-        <v-card class="glass-card pa-6 rounded-xl border-0" v-if="reportStore.activityReport">
-          <h3 class="text-h6 font-weight-bold text-white mb-4">Mutasi Per Pos Dana</h3>
-          <div v-for="cat in reportStore.activityReport.categories" :key="cat.fundCategory.id" class="mb-6 pa-4 rounded-lg bg-black-thin">
+        <v-card 
+          class="pa-6 rounded-xl border"
+          :class="isDarkTheme ? 'glass-card border-dark' : 'bg-white border-light elevation-2'"
+          v-if="reportStore.activityReport"
+        >
+          <h3 class="text-h6 font-weight-bold mb-4" :class="isDarkTheme ? 'text-white' : 'text-black'">Mutasi Per Pos Dana</h3>
+          <div 
+            v-for="cat in reportStore.activityReport.categories" 
+            :key="cat.fundCategory.id" 
+            class="mb-6 pa-4 rounded-lg border"
+            :class="isDarkTheme ? 'bg-black-thin border-dark' : 'bg-grey-lighten-4 border-light'"
+          >
             <div class="d-flex justify-space-between align-center mb-3">
               <div>
                 <h4 class="text-subtitle-1 font-weight-bold text-primary">{{ cat.fundCategory.name }}</h4>
-                <div class="text-caption text-grey">{{ cat.fundCategory.description || '' }}</div>
+                <div class="text-caption" :class="isDarkTheme ? 'text-grey' : 'text-grey-darken-1'">{{ cat.fundCategory.description || '' }}</div>
               </div>
               <div class="text-right">
-                <div class="text-caption text-grey">Surplus / Defisit:</div>
+                <div class="text-caption" :class="isDarkTheme ? 'text-grey' : 'text-grey-darken-1'">Surplus / Defisit:</div>
                 <div class="font-weight-black text-h6" :class="cat.netSurplus >= 0 ? 'text-success' : 'text-error'">
                   {{ formatCurrency(cat.netSurplus) }}
                 </div>
@@ -139,11 +154,11 @@
             </div>
             <v-row density="compact">
               <v-col cols="6">
-                <div class="text-caption text-grey">Total Pemasukan:</div>
+                <div class="text-caption" :class="isDarkTheme ? 'text-grey' : 'text-grey-darken-1'">Total Pemasukan:</div>
                 <div class="font-weight-bold text-success">{{ formatCurrency(cat.totalIncome) }}</div>
               </v-col>
               <v-col cols="6">
-                <div class="text-caption text-grey">Total Pengeluaran:</div>
+                <div class="text-caption" :class="isDarkTheme ? 'text-grey' : 'text-grey-darken-1'">Total Pengeluaran:</div>
                 <div class="font-weight-bold text-error">{{ formatCurrency(cat.totalExpense) }}</div>
               </v-col>
             </v-row>
@@ -153,9 +168,12 @@
 
       <!-- Tab 3: Jurnal Umum -->
       <v-window-item value="journal">
-        <v-card class="glass-card pa-6 rounded-xl border-0">
-          <h3 class="text-h6 font-weight-bold text-white mb-4">Catatan Jurnal Umum (Double-Entry)</h3>
-          <v-table theme="dark" class="bg-transparent">
+        <v-card 
+          class="pa-6 rounded-xl border"
+          :class="isDarkTheme ? 'glass-card border-dark' : 'bg-white border-light elevation-2'"
+        >
+          <h3 class="text-h6 font-weight-bold mb-4" :class="isDarkTheme ? 'text-white' : 'text-black'">Catatan Jurnal Umum (Double-Entry)</h3>
+          <v-table :theme="isDarkTheme ? 'dark' : 'light'" class="bg-transparent">
             <thead>
               <tr>
                 <th>No. Jurnal</th>
@@ -169,13 +187,13 @@
             <tbody>
               <template v-for="entry in reportStore.journalEntries" :key="entry.id">
                 <tr v-for="(item, idx) in entry.items" :key="item.id">
-                  <td v-if="idx === 0" :rowspan="entry.items.length" class="font-weight-bold text-primary border-b border-grey-darken-3">
+                  <td v-if="idx === 0" :rowspan="entry.items.length" class="font-weight-bold text-primary border-b" :class="isDarkTheme ? 'border-dark' : 'border-light'">
                     {{ entry.entryNumber }}
                   </td>
-                  <td v-if="idx === 0" :rowspan="entry.items.length" class="text-caption border-b border-grey-darken-3">
+                  <td v-if="idx === 0" :rowspan="entry.items.length" class="text-caption border-b" :class="isDarkTheme ? 'border-dark' : 'border-light'">
                     {{ formatDate(entry.date) }}
                   </td>
-                  <td v-if="idx === 0" :rowspan="entry.items.length" class="border-b border-grey-darken-3">
+                  <td v-if="idx === 0" :rowspan="entry.items.length" class="border-b" :class="isDarkTheme ? 'border-dark' : 'border-light'">
                     {{ entry.description }}
                   </td>
                   <td>
@@ -202,8 +220,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useTheme } from 'vuetify'
 import { useReportStore } from '../stores/report'
+
+const theme = useTheme()
+const isDarkTheme = computed(() => theme.global.name.value === 'dark' || theme.global.current.value.dark)
 
 const reportStore = useReportStore()
 const tab = ref('balance')
@@ -266,5 +288,11 @@ const printReport = () => {
 }
 .bg-black-thin {
   background: rgba(0, 0, 0, 0.2);
+}
+.border-dark {
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+.border-light {
+  border-color: rgba(0, 0, 0, 0.12) !important;
 }
 </style>

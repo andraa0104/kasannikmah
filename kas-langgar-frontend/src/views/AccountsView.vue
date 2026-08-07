@@ -3,15 +3,15 @@
     <!-- Header -->
     <div class="d-flex flex-column flex-md-row justify-space-between align-start align-md-center mb-6">
       <div>
-        <h1 class="text-h4 font-weight-bold text-white mb-1">Kas & Rekening Bank</h1>
-        <p class="text-body-2 text-grey">Kelola dompet/rekening kas dan transfer saldo antar rekening.</p>
+        <h1 class="text-h4 font-weight-bold mb-1" :class="isDarkTheme ? 'text-white' : 'text-black'">Kas & Rekening Bank</h1>
+        <p class="text-body-2" :class="isDarkTheme ? 'text-grey' : 'text-grey-darken-1'">Kelola dompet/rekening kas dan transfer saldo antar rekening.</p>
       </div>
 
       <div class="d-flex gap-3 mt-4 mt-md-0">
-        <v-btn color="secondary" prepend-icon="mdi-swap-horizontal" rounded="pill" @click="showTransferModal = true">
+        <v-btn color="secondary" prepend-icon="mdi-swap-horizontal" rounded="pill" elevation="2" @click="showTransferModal = true">
           Transfer Saldo
         </v-btn>
-        <v-btn color="primary" prepend-icon="mdi-plus" rounded="pill" @click="showAccountModal = true">
+        <v-btn color="primary" prepend-icon="mdi-plus" rounded="pill" elevation="2" @click="showAccountModal = true">
           Tambah Rekening
         </v-btn>
       </div>
@@ -20,31 +20,37 @@
     <!-- Cards Grid -->
     <v-row class="mb-6">
       <v-col v-for="acc in accountStore.accounts" :key="acc.id" cols="12" sm="6" md="4">
-        <v-card class="glass-card pa-6 rounded-xl border-0 h-100 position-relative">
+        <v-card 
+          class="pa-6 rounded-xl border h-100 position-relative"
+          :class="isDarkTheme ? 'glass-card text-white border-dark' : 'bg-white text-black border-light elevation-2'"
+        >
           <div class="d-flex justify-space-between align-start mb-4">
             <div>
-              <v-chip size="x-small" :color="acc.type === 'CASH' ? 'success' : 'primary'" class="mb-2">
+              <v-chip size="x-small" :color="acc.type === 'CASH' ? 'success' : 'primary'" class="mb-2 font-weight-bold">
                 {{ acc.type === 'CASH' ? 'Kas Tunai' : `Bank ${acc.bankName || ''}` }}
               </v-chip>
-              <h3 class="text-h6 font-weight-bold text-white">{{ acc.name }}</h3>
-              <div class="text-caption text-grey">{{ acc.accountNumber || 'Tanpa no. rekening' }}</div>
+              <h3 class="text-h6 font-weight-bold" :class="isDarkTheme ? 'text-white' : 'text-black'">{{ acc.name }}</h3>
+              <div class="text-caption" :class="isDarkTheme ? 'text-grey' : 'text-grey-darken-1'">{{ acc.accountNumber || 'Tanpa no. rekening' }}</div>
             </div>
             <v-avatar :color="acc.type === 'CASH' ? 'success' : 'primary'" variant="tonal" size="48">
               <v-icon :icon="acc.type === 'CASH' ? 'mdi-cash-multiple' : 'mdi-bank'"></v-icon>
             </v-avatar>
           </div>
           <div class="mt-4">
-            <div class="text-caption text-grey">Saldo Saat Ini:</div>
-            <div class="text-h4 font-weight-black text-white">{{ formatCurrency(acc.balance) }}</div>
+            <div class="text-caption" :class="isDarkTheme ? 'text-grey' : 'text-grey-darken-1'">Saldo Saat Ini:</div>
+            <div class="text-h4 font-weight-black" :class="isDarkTheme ? 'text-white' : 'text-black'">{{ formatCurrency(acc.balance) }}</div>
           </div>
         </v-card>
       </v-col>
     </v-row>
 
     <!-- Table Transfer History -->
-    <v-card class="glass-card pa-6 rounded-xl border-0">
-      <h3 class="text-h6 font-weight-bold text-white mb-4">Riwayat Transfer Antar Rekening</h3>
-      <v-table theme="dark" class="bg-transparent">
+    <v-card 
+      class="pa-6 rounded-xl border"
+      :class="isDarkTheme ? 'glass-card border-dark' : 'bg-white border-light elevation-2'"
+    >
+      <h3 class="text-h6 font-weight-bold mb-4" :class="isDarkTheme ? 'text-white' : 'text-black'">Riwayat Transfer Antar Rekening</h3>
+      <v-table :theme="isDarkTheme ? 'dark' : 'light'" class="bg-transparent">
         <thead>
           <tr>
             <th>Tanggal</th>
@@ -56,11 +62,11 @@
         </thead>
         <tbody>
           <tr v-for="trf in accountStore.transfers" :key="trf.id">
-            <td>{{ formatDate(trf.date) }}</td>
+            <td class="font-weight-medium">{{ formatDate(trf.date) }}</td>
             <td class="font-weight-bold text-error">{{ trf.sourceAccount.name }}</td>
             <td class="font-weight-bold text-success">{{ trf.targetAccount.name }}</td>
             <td>{{ trf.description || '-' }}</td>
-            <td class="text-right font-weight-black text-white">{{ formatCurrency(trf.amount) }}</td>
+            <td class="text-right font-weight-black" :class="isDarkTheme ? 'text-white' : 'text-black'">{{ formatCurrency(trf.amount) }}</td>
           </tr>
           <tr v-if="accountStore.transfers.length === 0">
             <td colspan="5" class="text-center py-6 text-grey">Belum ada riwayat transfer</td>
@@ -70,20 +76,71 @@
     </v-card>
 
     <!-- Modal Tambah Rekening -->
-    <v-dialog v-model="showAccountModal" max-width="450">
-      <v-card class="bg-grey-darken-4 text-white rounded-xl pa-4">
-        <v-card-title class="font-weight-bold">Tambah Rekening / Kas Baru</v-card-title>
-        <v-card-text>
+    <v-dialog v-model="showAccountModal" max-width="480">
+      <v-card 
+        class="rounded-xl pa-6 elevation-12"
+        :class="isDarkTheme ? 'bg-grey-darken-3 text-white' : 'bg-white text-black'"
+      >
+        <v-card-title class="font-weight-bold text-h6 pa-0 mb-4 d-flex align-center justify-space-between" :class="isDarkTheme ? 'text-white' : 'text-black'">
+          <span>Tambah Rekening / Kas Baru</span>
+          <v-btn icon="mdi-close" variant="text" size="small" :color="isDarkTheme ? 'white' : 'grey-darken-2'" @click="showAccountModal = false"></v-btn>
+        </v-card-title>
+        <v-card-text class="pa-0">
           <v-form @submit.prevent="handleCreateAccount">
-            <v-text-field v-model="accountForm.name" label="Nama Kas / Rekening" variant="outlined" density="compact" required class="mb-3"></v-text-field>
-            <v-select v-model="accountForm.type" :items="accountTypes" label="Tipe Rekening" variant="outlined" density="compact" required class="mb-3"></v-select>
-            <v-text-field v-if="accountForm.type === 'BANK'" v-model="accountForm.bankName" label="Nama Bank (Misal: BSI)" variant="outlined" density="compact" class="mb-3"></v-text-field>
-            <v-text-field v-if="accountForm.type === 'BANK'" v-model="accountForm.accountNumber" label="Nomor Rekening" variant="outlined" density="compact" class="mb-3"></v-text-field>
-            <v-text-field v-model.number="accountForm.balance" label="Saldo Awal (Rp)" type="number" variant="outlined" density="compact" class="mb-3"></v-text-field>
+            <v-text-field 
+              v-model="accountForm.name" 
+              label="Nama Kas / Rekening" 
+              variant="outlined" 
+              density="compact" 
+              required 
+              class="mb-3"
+              rounded="lg"
+            ></v-text-field>
 
-            <div class="d-flex justify-end gap-2 mt-4">
-              <v-btn variant="text" @click="showAccountModal = false">Batal</v-btn>
-              <v-btn color="primary" type="submit" :loading="loading">Simpan</v-btn>
+            <v-select 
+              v-model="accountForm.type" 
+              :items="accountTypes" 
+              label="Tipe Rekening" 
+              variant="outlined" 
+              density="compact" 
+              required 
+              class="mb-3"
+              rounded="lg"
+            ></v-select>
+
+            <v-text-field 
+              v-if="accountForm.type === 'BANK'" 
+              v-model="accountForm.bankName" 
+              label="Nama Bank (Misal: BSI, Mandiri)" 
+              variant="outlined" 
+              density="compact" 
+              class="mb-3"
+              rounded="lg"
+            ></v-text-field>
+
+            <v-text-field 
+              v-if="accountForm.type === 'BANK'" 
+              v-model="accountForm.accountNumber" 
+              label="Nomor Rekening" 
+              variant="outlined" 
+              density="compact" 
+              class="mb-3"
+              rounded="lg"
+            ></v-text-field>
+
+            <v-text-field 
+              v-model.number="accountForm.balance" 
+              label="Saldo Awal (Rp)" 
+              type="number" 
+              variant="outlined" 
+              density="compact" 
+              class="mb-3"
+              rounded="lg"
+            ></v-text-field>
+
+            <div class="d-flex justify-end gap-2 mt-6">
+              <v-btn variant="tonal" :color="isDarkTheme ? 'white' : 'grey-darken-1'" rounded="pill" class="px-5" @click="showAccountModal = false">Batal</v-btn>
+              <v-btn color="primary" variant="flat" type="submit" :loading="loading" rounded="pill" class="px-6 font-weight-bold">Simpan Rekening</v-btn>
             </div>
           </v-form>
         </v-card-text>
@@ -91,19 +148,66 @@
     </v-dialog>
 
     <!-- Modal Transfer Saldo -->
-    <v-dialog v-model="showTransferModal" max-width="450">
-      <v-card class="bg-grey-darken-4 text-white rounded-xl pa-4">
-        <v-card-title class="font-weight-bold">Transfer Saldo Antar Rekening</v-card-title>
-        <v-card-text>
+    <v-dialog v-model="showTransferModal" max-width="480">
+      <v-card 
+        class="rounded-xl pa-6 elevation-12"
+        :class="isDarkTheme ? 'bg-grey-darken-3 text-white' : 'bg-white text-black'"
+      >
+        <v-card-title class="font-weight-bold text-h6 pa-0 mb-4 d-flex align-center justify-space-between" :class="isDarkTheme ? 'text-white' : 'text-black'">
+          <span>Transfer Saldo Antar Rekening</span>
+          <v-btn icon="mdi-close" variant="text" size="small" :color="isDarkTheme ? 'white' : 'grey-darken-2'" @click="showTransferModal = false"></v-btn>
+        </v-card-title>
+        <v-card-text class="pa-0">
           <v-form @submit.prevent="handleTransfer">
-            <v-select v-model="transferForm.sourceAccountId" :items="accountStore.accounts" item-title="name" item-value="id" label="Dari Rekening (Asal)" variant="outlined" density="compact" required class="mb-3"></v-select>
-            <v-select v-model="transferForm.targetAccountId" :items="accountStore.accounts" item-title="name" item-value="id" label="Ke Rekening (Tujuan)" variant="outlined" density="compact" required class="mb-3"></v-select>
-            <v-text-field v-model.number="transferForm.amount" label="Jumlah Transfer (Rp)" type="number" variant="outlined" density="compact" required class="mb-3"></v-text-field>
-            <v-text-field v-model="transferForm.description" label="Keterangan Transfer" variant="outlined" density="compact" class="mb-3"></v-text-field>
+            <v-select 
+              v-model="transferForm.sourceAccountId" 
+              :items="accountStore.accounts" 
+              item-title="name" 
+              item-value="id" 
+              label="Dari Rekening (Asal)" 
+              variant="outlined" 
+              density="compact" 
+              required 
+              class="mb-3"
+              rounded="lg"
+            ></v-select>
 
-            <div class="d-flex justify-end gap-2 mt-4">
-              <v-btn variant="text" @click="showTransferModal = false">Batal</v-btn>
-              <v-btn color="secondary" type="submit" :loading="loading">Transfer Sekarang</v-btn>
+            <v-select 
+              v-model="transferForm.targetAccountId" 
+              :items="accountStore.accounts" 
+              item-title="name" 
+              item-value="id" 
+              label="Ke Rekening (Tujuan)" 
+              variant="outlined" 
+              density="compact" 
+              required 
+              class="mb-3"
+              rounded="lg"
+            ></v-select>
+
+            <v-text-field 
+              v-model.number="transferForm.amount" 
+              label="Jumlah Transfer (Rp)" 
+              type="number" 
+              variant="outlined" 
+              density="compact" 
+              required 
+              class="mb-3"
+              rounded="lg"
+            ></v-text-field>
+
+            <v-text-field 
+              v-model="transferForm.description" 
+              label="Keterangan Transfer" 
+              variant="outlined" 
+              density="compact" 
+              class="mb-3"
+              rounded="lg"
+            ></v-text-field>
+
+            <div class="d-flex justify-end gap-2 mt-6">
+              <v-btn variant="tonal" :color="isDarkTheme ? 'white' : 'grey-darken-1'" rounded="pill" class="px-5" @click="showTransferModal = false">Batal</v-btn>
+              <v-btn color="secondary" variant="flat" type="submit" :loading="loading" rounded="pill" class="px-6 font-weight-bold">Transfer Sekarang</v-btn>
             </div>
           </v-form>
         </v-card-text>
@@ -113,8 +217,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useTheme } from 'vuetify'
 import { useAccountStore } from '../stores/account'
+
+const theme = useTheme()
+const isDarkTheme = computed(() => theme.global.name.value === 'dark' || theme.global.current.value.dark)
 
 const accountStore = useAccountStore()
 const loading = ref(false)
@@ -189,5 +297,17 @@ const formatDate = (dateStr: string) => {
   background: rgba(255, 255, 255, 0.05) !important;
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.border-dark {
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+.border-light {
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+.gap-2 {
+  gap: 8px;
+}
+.gap-3 {
+  gap: 12px;
 }
 </style>
