@@ -19,6 +19,9 @@ class UpdateTransactionDto {
     amount;
     description;
     category;
+    accountId;
+    fundCategoryId;
+    attachmentUrl;
 }
 exports.UpdateTransactionDto = UpdateTransactionDto;
 __decorate([
@@ -47,4 +50,21 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], UpdateTransactionDto.prototype, "category", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsInt)(),
+    __metadata("design:type", Number)
+], UpdateTransactionDto.prototype, "accountId", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsInt)(),
+    __metadata("design:type", Number)
+], UpdateTransactionDto.prototype, "fundCategoryId", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], UpdateTransactionDto.prototype, "attachmentUrl", void 0);
 //# sourceMappingURL=update-transaction.dto.js.map

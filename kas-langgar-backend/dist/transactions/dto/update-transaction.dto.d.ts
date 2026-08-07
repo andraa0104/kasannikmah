@@ -5,4 +5,7 @@ export declare class UpdateTransactionDto {
     amount?: number;
     description?: string;
     category?: string;
+    accountId?: number;
+    fundCategoryId?: number;
+    attachmentUrl?: string;
 }

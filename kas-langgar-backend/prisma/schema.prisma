@@ -10,55 +10,188 @@ generator client {
 }
 
 // USER MODEL
-// Menyimpan data pengguna sistem.
-// Role: ADMIN (full access), BENDAHARA (create/edit trans), PENGURUS (view only)
 model User {
-  id        Int       @id @default(autoincrement())
-  username     String    @unique
-  password  String
-  name      String
-  role      Role      @default(PENGURUS)
-  permissions Json?
-  isActive  Boolean   @default(true)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id           Int               @id @default(autoincrement())
+  username     String            @unique
+  password     String
+  name         String
+  role         Role              @default(PENGURUS)
+  permissions  Json?
+  isActive     Boolean           @default(true)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
   transactions Transaction[]
+  transfers    AccountTransfer[]
 
   @@map("users")
   @@index([username])
   @@index([role])
 }
 
-// TRANSACTION MODEL
-// Menyimpan setiap kas masuk/keluar.
-model Transaction {
-  id          Int             @id @default(autoincrement())
+// ACCOUNT MODEL (Kas Tunai, Bank BSI, QRIS, dsb)
+model Account {
+  id            Int               @id @default(autoincrement())
+  name          String
+  type          AccountType       @default(CASH)
+  accountNumber String?
+  bankName      String?
+  balance       Decimal           @default(0) @db.Decimal(15, 2)
+  isDefault     Boolean           @default(false)
+  isActive      Boolean           @default(true)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  transactions  Transaction[]
+  transfersFrom AccountTransfer[] @relation("sourceAccount")
+  transfersTo   AccountTransfer[] @relation("targetAccount")
+
+  @@map("accounts")
+}
+
+// FUND CATEGORY MODEL (Dana Bebas, Dana Yatim, Dana Pembangunan, Zakat)
+model FundCategory {
+  id           Int           @id @default(autoincrement())
+  name         String
+  code         String        @unique
+  fundType     FundType      @default(UNRESTRICTED)
+  description  String?
+  isActive     Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  transactions Transaction[]
+
+  @@map("fund_categories")
+}
+
+// CHART OF ACCOUNTS (COA untuk Jurnal Umums)
+model AccountChart {
+  id           Int           @id @default(autoincrement())
+  code         String        @unique
+  name         String
+  type         ChartType
+  description  String?
+  isActive     Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  journalItems JournalItem[]
+
+  @@map("account_charts")
+}
+
+// JOURNAL ENTRY MODEL (Entri Jurnal Umum)
+model JournalEntry {
+  id          Int              @id @default(autoincrement())
+  entryNumber String           @unique
   date        DateTime
-  type        TransactionType
-  amount      Decimal         @db.Decimal(15, 2)
-  description String?
-  category    String
-  createdBy   Int
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
-  user        User            @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  description String
+  refType     String?
+  refId       Int?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  items       JournalItem[]
+  transaction Transaction?
+  transfer    AccountTransfer?
+
+  @@map("journal_entries")
+  @@index([date])
+}
+
+// JOURNAL ITEM MODEL (Item Debet/Kredit Jurnal)
+model JournalItem {
+  id             Int          @id @default(autoincrement())
+  journalEntryId Int
+  chartId        Int
+  debit          Decimal      @default(0) @db.Decimal(15, 2)
+  credit         Decimal      @default(0) @db.Decimal(15, 2)
+  journalEntry   JournalEntry @relation(fields: [journalEntryId], references: [id], onDelete: Cascade)
+  chart          AccountChart @relation(fields: [chartId], references: [id], onDelete: Cascade)
+
+  @@map("journal_items")
+  @@index([journalEntryId])
+  @@index([chartId])
+}
+
+// ACCOUNT TRANSFER MODEL (Transfer antar Kas/Bank)
+model AccountTransfer {
+  id              Int           @id @default(autoincrement())
+  date            DateTime
+  sourceAccountId Int
+  targetAccountId Int
+  amount          Decimal       @db.Decimal(15, 2)
+  description     String?
+  journalEntryId  Int?          @unique
+  createdBy       Int
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  sourceAccount   Account       @relation("sourceAccount", fields: [sourceAccountId], references: [id], onDelete: Cascade)
+  targetAccount   Account       @relation("targetAccount", fields: [targetAccountId], references: [id], onDelete: Cascade)
+  user            User          @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  journalEntry    JournalEntry? @relation(fields: [journalEntryId], references: [id], onDelete: SetNull)
+
+  @@map("account_transfers")
+  @@index([date])
+  @@index([sourceAccountId])
+  @@index([targetAccountId])
+}
+
+// TRANSACTION MODEL
+model Transaction {
+  id             Int           @id @default(autoincrement())
+  date           DateTime
+  type           TransactionType
+  amount         Decimal       @db.Decimal(15, 2)
+  description    String?
+  category       String
+  accountId      Int?
+  fundCategoryId Int?
+  attachmentUrl  String?
+  journalEntryId Int?          @unique
+  createdBy      Int
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  user           User          @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  account        Account?      @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  fundCategory   FundCategory? @relation(fields: [fundCategoryId], references: [id], onDelete: SetNull)
+  journalEntry   JournalEntry? @relation(fields: [journalEntryId], references: [id], onDelete: SetNull)
 
   @@map("transactions")
   @@index([date])
   @@index([type])
   @@index([createdBy])
   @@index([createdAt])
+  @@index([accountId])
+  @@index([fundCategoryId])
 }
 
-// ENUM: TransactionType
+// ENUMS
 enum TransactionType {
   INCOME
   EXPENSE
 }
 
-// ENUM: Role
 enum Role {
   ADMIN
   BENDAHARA
   PENGURUS
+}
+
+enum AccountType {
+  CASH
+  BANK
+  EWALLET
+}
+
+enum FundType {
+  UNRESTRICTED
+  RESTRICTED_YATIM
+  RESTRICTED_BUILDING
+  RESTRICTED_ZAKAT
+  RESTRICTED_OTHER
+}
+
+enum ChartType {
+  ASSET
+  LIABILITY
+  EQUITY
+  REVENUE
+  EXPENSE
 }

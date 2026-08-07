@@ -47,23 +47,33 @@
 
           <v-divider class="my-2 mx-4 border-opacity-25"></v-divider>
 
-          <v-list density="compact" nav class="flex-grow-1">
-            <v-list-item prepend-icon="mdi-view-dashboard" value="dashboard" :to="{ name: 'dashboard' }" color="primary" class="rounded-lg mb-1">
-              <template v-slot:title>
-                <div v-show="!rail" class="text-wrap" style="line-height: 1.2;">Dashboard</div>
-              </template>
-            </v-list-item>
-            <v-list-item v-if="authStore.hasPermission('users:read')" prepend-icon="mdi-account-group" value="users" :to="{ name: 'users' }" color="primary" class="rounded-lg mb-1">
-              <template v-slot:title>
-                <div v-show="!rail" class="text-wrap" style="line-height: 1.2;">Manajemen Pengurus</div>
-              </template>
-            </v-list-item>
-            <v-list-item prepend-icon="mdi-cog" value="settings" :to="{ name: 'settings' }" color="primary" class="rounded-lg mb-1">
-              <template v-slot:title>
-                <div v-show="!rail" class="text-wrap" style="line-height: 1.2;">Pengaturan</div>
-              </template>
-            </v-list-item>
-          </v-list>
+            <v-list density="compact" nav class="flex-grow-1">
+              <v-list-item prepend-icon="mdi-view-dashboard" value="dashboard" :to="{ name: 'dashboard' }" color="primary" class="rounded-lg mb-1">
+                <template v-slot:title>
+                  <div v-show="!rail" class="text-wrap" style="line-height: 1.2;">Dashboard</div>
+                </template>
+              </v-list-item>
+              <v-list-item prepend-icon="mdi-file-chart" value="reports" :to="{ name: 'reports' }" color="primary" class="rounded-lg mb-1">
+                <template v-slot:title>
+                  <div v-show="!rail" class="text-wrap" style="line-height: 1.2;">Laporan & Jurnal</div>
+                </template>
+              </v-list-item>
+              <v-list-item prepend-icon="mdi-bank" value="accounts" :to="{ name: 'accounts' }" color="primary" class="rounded-lg mb-1">
+                <template v-slot:title>
+                  <div v-show="!rail" class="text-wrap" style="line-height: 1.2;">Kas & Rekening</div>
+                </template>
+              </v-list-item>
+              <v-list-item v-if="authStore.hasPermission('users:read')" prepend-icon="mdi-account-group" value="users" :to="{ name: 'users' }" color="primary" class="rounded-lg mb-1">
+                <template v-slot:title>
+                  <div v-show="!rail" class="text-wrap" style="line-height: 1.2;">Manajemen Pengurus</div>
+                </template>
+              </v-list-item>
+              <v-list-item prepend-icon="mdi-cog" value="settings" :to="{ name: 'settings' }" color="primary" class="rounded-lg mb-1">
+                <template v-slot:title>
+                  <div v-show="!rail" class="text-wrap" style="line-height: 1.2;">Pengaturan</div>
+                </template>
+              </v-list-item>
+            </v-list>
           
           <div class="pa-3 mt-auto mb-2">
             <v-btn block color="error" variant="tonal" prepend-icon="mdi-logout" @click="handleLogout" class="rounded-xl">

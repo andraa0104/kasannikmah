@@ -1,0 +1,193 @@
+<template>
+  <div>
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row justify-space-between align-start align-md-center mb-6">
+      <div>
+        <h1 class="text-h4 font-weight-bold text-white mb-1">Kas & Rekening Bank</h1>
+        <p class="text-body-2 text-grey">Kelola dompet/rekening kas dan transfer saldo antar rekening.</p>
+      </div>
+
+      <div class="d-flex gap-3 mt-4 mt-md-0">
+        <v-btn color="secondary" prepend-icon="mdi-swap-horizontal" rounded="pill" @click="showTransferModal = true">
+          Transfer Saldo
+        </v-btn>
+        <v-btn color="primary" prepend-icon="mdi-plus" rounded="pill" @click="showAccountModal = true">
+          Tambah Rekening
+        </v-btn>
+      </div>
+    </div>
+
+    <!-- Cards Grid -->
+    <v-row class="mb-6">
+      <v-col v-for="acc in accountStore.accounts" :key="acc.id" cols="12" sm="6" md="4">
+        <v-card class="glass-card pa-6 rounded-xl border-0 h-100 position-relative">
+          <div class="d-flex justify-space-between align-start mb-4">
+            <div>
+              <v-chip size="x-small" :color="acc.type === 'CASH' ? 'success' : 'primary'" class="mb-2">
+                {{ acc.type === 'CASH' ? 'Kas Tunai' : `Bank ${acc.bankName || ''}` }}
+              </v-chip>
+              <h3 class="text-h6 font-weight-bold text-white">{{ acc.name }}</h3>
+              <div class="text-caption text-grey">{{ acc.accountNumber || 'Tanpa no. rekening' }}</div>
+            </div>
+            <v-avatar :color="acc.type === 'CASH' ? 'success' : 'primary'" variant="tonal" size="48">
+              <v-icon :icon="acc.type === 'CASH' ? 'mdi-cash-multiple' : 'mdi-bank'"></v-icon>
+            </v-avatar>
+          </div>
+          <div class="mt-4">
+            <div class="text-caption text-grey">Saldo Saat Ini:</div>
+            <div class="text-h4 font-weight-black text-white">{{ formatCurrency(acc.balance) }}</div>
+          </div>
+        </v-card>
+      </v-col>
+    </v-row>
+
+    <!-- Table Transfer History -->
+    <v-card class="glass-card pa-6 rounded-xl border-0">
+      <h3 class="text-h6 font-weight-bold text-white mb-4">Riwayat Transfer Antar Rekening</h3>
+      <v-table theme="dark" class="bg-transparent">
+        <thead>
+          <tr>
+            <th>Tanggal</th>
+            <th>Rekening Asal</th>
+            <th>Rekening Tujuan</th>
+            <th>Keterangan</th>
+            <th class="text-right">Jumlah (Rp)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="trf in accountStore.transfers" :key="trf.id">
+            <td>{{ formatDate(trf.date) }}</td>
+            <td class="font-weight-bold text-error">{{ trf.sourceAccount.name }}</td>
+            <td class="font-weight-bold text-success">{{ trf.targetAccount.name }}</td>
+            <td>{{ trf.description || '-' }}</td>
+            <td class="text-right font-weight-black text-white">{{ formatCurrency(trf.amount) }}</td>
+          </tr>
+          <tr v-if="accountStore.transfers.length === 0">
+            <td colspan="5" class="text-center py-6 text-grey">Belum ada riwayat transfer</td>
+          </tr>
+        </tbody>
+      </v-table>
+    </v-card>
+
+    <!-- Modal Tambah Rekening -->
+    <v-dialog v-model="showAccountModal" max-width="450">
+      <v-card class="bg-grey-darken-4 text-white rounded-xl pa-4">
+        <v-card-title class="font-weight-bold">Tambah Rekening / Kas Baru</v-card-title>
+        <v-card-text>
+          <v-form @submit.prevent="handleCreateAccount">
+            <v-text-field v-model="accountForm.name" label="Nama Kas / Rekening" variant="outlined" density="compact" required class="mb-3"></v-text-field>
+            <v-select v-model="accountForm.type" :items="accountTypes" label="Tipe Rekening" variant="outlined" density="compact" required class="mb-3"></v-select>
+            <v-text-field v-if="accountForm.type === 'BANK'" v-model="accountForm.bankName" label="Nama Bank (Misal: BSI)" variant="outlined" density="compact" class="mb-3"></v-text-field>
+            <v-text-field v-if="accountForm.type === 'BANK'" v-model="accountForm.accountNumber" label="Nomor Rekening" variant="outlined" density="compact" class="mb-3"></v-text-field>
+            <v-text-field v-model.number="accountForm.balance" label="Saldo Awal (Rp)" type="number" variant="outlined" density="compact" class="mb-3"></v-text-field>
+
+            <div class="d-flex justify-end gap-2 mt-4">
+              <v-btn variant="text" @click="showAccountModal = false">Batal</v-btn>
+              <v-btn color="primary" type="submit" :loading="loading">Simpan</v-btn>
+            </div>
+          </v-form>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
+    <!-- Modal Transfer Saldo -->
+    <v-dialog v-model="showTransferModal" max-width="450">
+      <v-card class="bg-grey-darken-4 text-white rounded-xl pa-4">
+        <v-card-title class="font-weight-bold">Transfer Saldo Antar Rekening</v-card-title>
+        <v-card-text>
+          <v-form @submit.prevent="handleTransfer">
+            <v-select v-model="transferForm.sourceAccountId" :items="accountStore.accounts" item-title="name" item-value="id" label="Dari Rekening (Asal)" variant="outlined" density="compact" required class="mb-3"></v-select>
+            <v-select v-model="transferForm.targetAccountId" :items="accountStore.accounts" item-title="name" item-value="id" label="Ke Rekening (Tujuan)" variant="outlined" density="compact" required class="mb-3"></v-select>
+            <v-text-field v-model.number="transferForm.amount" label="Jumlah Transfer (Rp)" type="number" variant="outlined" density="compact" required class="mb-3"></v-text-field>
+            <v-text-field v-model="transferForm.description" label="Keterangan Transfer" variant="outlined" density="compact" class="mb-3"></v-text-field>
+
+            <div class="d-flex justify-end gap-2 mt-4">
+              <v-btn variant="text" @click="showTransferModal = false">Batal</v-btn>
+              <v-btn color="secondary" type="submit" :loading="loading">Transfer Sekarang</v-btn>
+            </div>
+          </v-form>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { useAccountStore } from '../stores/account'
+
+const accountStore = useAccountStore()
+const loading = ref(false)
+const showAccountModal = ref(false)
+const showTransferModal = ref(false)
+
+const accountTypes = [
+  { title: 'Kas Tunai', value: 'CASH' },
+  { title: 'Rekening Bank', value: 'BANK' },
+  { title: 'E-Wallet / QRIS', value: 'EWALLET' }
+]
+
+const accountForm = ref({
+  name: '',
+  type: 'CASH',
+  bankName: '',
+  accountNumber: '',
+  balance: 0
+})
+
+const transferForm = ref({
+  sourceAccountId: null as number | null,
+  targetAccountId: null as number | null,
+  amount: 0,
+  description: '',
+  date: new Date().toISOString().split('T')[0]
+})
+
+onMounted(async () => {
+  await accountStore.fetchAccounts()
+  await accountStore.fetchTransfers()
+})
+
+const handleCreateAccount = async () => {
+  loading.value = true
+  try {
+    await accountStore.createAccount(accountForm.value)
+    showAccountModal.value = false
+    accountForm.value = { name: '', type: 'CASH', bankName: '', accountNumber: '', balance: 0 }
+  } catch (e: any) {
+    alert(e.response?.data?.message || 'Gagal membuat rekening')
+  } finally {
+    loading.value = false
+  }
+}
+
+const handleTransfer = async () => {
+  if (!transferForm.value.sourceAccountId || !transferForm.value.targetAccountId) return
+  loading.value = true
+  try {
+    await accountStore.transfer(transferForm.value)
+    showTransferModal.value = false
+    transferForm.value = { sourceAccountId: null, targetAccountId: null, amount: 0, description: '', date: new Date().toISOString().split('T')[0] }
+  } catch (e: any) {
+    alert(e.response?.data?.message || 'Gagal melakukan transfer')
+  } finally {
+    loading.value = false
+  }
+}
+
+const formatCurrency = (val: any) => {
+  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(Number(val) || 0)
+}
+
+const formatDate = (dateStr: string) => {
+  return new Date(dateStr).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
+}
+</script>
+
+<style scoped>
+.glass-card {
+  background: rgba(255, 255, 255, 0.05) !important;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+</style>

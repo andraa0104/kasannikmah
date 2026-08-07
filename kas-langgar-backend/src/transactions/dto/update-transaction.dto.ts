@@ -1,4 +1,4 @@
-import { IsDateString, IsEnum, IsDecimal, IsString, IsOptional, Min } from 'class-validator'
+import { IsDateString, IsEnum, IsString, IsOptional, Min, IsInt } from 'class-validator'
 import { TransactionType } from '@prisma/client'
 import { Type } from 'class-transformer'
 
@@ -23,4 +23,18 @@ export class UpdateTransactionDto {
   @IsOptional()
   @IsString()
   category?: string
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  accountId?: number
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  fundCategoryId?: number
+
+  @IsOptional()
+  @IsString()
+  attachmentUrl?: string
 }

@@ -26,6 +26,16 @@ const router = createRouter({
           component: () => import('../views/DashboardView.vue')
         },
         {
+          path: 'reports',
+          name: 'reports',
+          component: () => import('../views/ReportsView.vue')
+        },
+        {
+          path: 'accounts',
+          name: 'accounts',
+          component: () => import('../views/AccountsView.vue')
+        },
+        {
           path: 'users',
           name: 'users',
           component: () => import('../views/UsersView.vue'),
@@ -44,13 +54,13 @@ const router = createRouter({
 // Navigation Guard
 router.beforeEach((to) => {
   const authStore = useAuthStore()
-  
+
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     return { name: 'login' }
   } else if (to.name === 'login' && authStore.isAuthenticated) {
     return { name: 'dashboard' }
   } else if (to.meta.requiresAdmin && !authStore.isAdmin && !authStore.hasPermission('users:read')) {
-    return { name: 'dashboard' } // Redirect non-admins without permission trying to access admin pages
+    return { name: 'dashboard' }
   }
 })
 

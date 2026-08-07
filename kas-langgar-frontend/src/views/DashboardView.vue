@@ -338,6 +338,45 @@
               rounded="xl"
             ></v-text-field>
 
+            <v-select
+              v-model="formData.accountId"
+              :items="accountStore.accounts"
+              item-title="name"
+              item-value="id"
+              label="Pilih Kas / Rekening Bank"
+              variant="outlined"
+              color="primary"
+              bg-color="rgba(0,0,0,0.1)"
+              class="mb-2"
+              rounded="xl"
+            ></v-select>
+
+            <v-select
+              v-model="formData.fundCategoryId"
+              :items="accountStore.fundCategories"
+              item-title="name"
+              item-value="id"
+              label="Pilih Pos Dana (Umum/Yatim/Pembangunan)"
+              variant="outlined"
+              color="primary"
+              bg-color="rgba(0,0,0,0.1)"
+              class="mb-2"
+              rounded="xl"
+            ></v-select>
+
+            <v-file-input
+              v-model="proofFile"
+              label="Upload Bukti Nota / Kwitansi (Opsional, Max 2MB)"
+              accept="image/*,.pdf"
+              prepend-icon="mdi-paperclip"
+              variant="outlined"
+              color="primary"
+              bg-color="rgba(0,0,0,0.1)"
+              class="mb-2"
+              rounded="xl"
+              show-size
+            ></v-file-input>
+
             <v-textarea
               v-model="formData.description"
               label="Keterangan"
@@ -365,8 +404,13 @@ import api from '../services/api'
 import { useAuthStore } from '../stores/auth'
 import { useTransactionStore } from '../stores/transaction'
 
+import { useAccountStore } from '../stores/account'
+
 const authStore = useAuthStore()
 const transactionStore = useTransactionStore()
+const accountStore = useAccountStore()
+
+const proofFile = ref<File | null>(null)
 
 const search = ref('')
 const searchBy = ref('description')
@@ -437,7 +481,6 @@ const fetchAvailableDates = async () => {
     const currentRealYear = now.getFullYear()
     const currentRealMonth = now.getMonth() + 1
 
-    // Ensure current month/year is in the availableDates array
     const hasCurrentDate = availableDates.value.some(
       d => d.year === currentRealYear && d.month === currentRealMonth
     )
@@ -463,7 +506,9 @@ const formData = ref({
   date: new Date().toISOString().substr(0, 10),
   category: '',
   amount: '',
-  description: ''
+  description: '',
+  accountId: undefined as number | undefined,
+  fundCategoryId: undefined as number | undefined
 })
 
 const headers = computed(() => {
@@ -493,6 +538,8 @@ const formattedAmount = computed({
 
 onMounted(() => {
   fetchAvailableDates()
+  accountStore.fetchAccounts()
+  accountStore.fetchFundCategories()
 })
 
 const filteredTransactions = computed(() => {
@@ -530,17 +577,33 @@ const formatDate = (dateString: string) => {
 const saveTransaction = async () => {
   const { valid } = await formRef.value.validate()
   if (valid) {
+    let attachmentUrl = undefined
+
+    // Upload optional proof file if provided (max 2MB)
+    if (proofFile.value) {
+      if (proofFile.value.size > 2 * 1024 * 1024) {
+        alert('Ukuran file bukti maksimal 2MB untuk menghemat memori server!')
+        return
+      }
+      try {
+        attachmentUrl = await transactionStore.uploadProof(proofFile.value)
+      } catch (err: any) {
+        alert('Gagal mengunggah file bukti. Transaksi akan tetap disimpan tanpa lampiran.')
+      }
+    }
+
     const success = await transactionStore.createTransaction({
       ...formData.value,
-      amount: Number(formData.value.amount)
+      amount: Number(formData.value.amount),
+      attachmentUrl
     })
     
     if (success) {
       dialog.value = false
       formRef.value.reset()
+      proofFile.value = null
       formData.value.date = new Date().toISOString().substr(0, 10)
       
-      // Update available dates and re-fetch to include new transaction
       fetchAvailableDates()
     }
   }

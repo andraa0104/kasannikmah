@@ -4,7 +4,23 @@ export declare class PublicController {
     private readonly transactionsService;
     constructor(transactionsService: TransactionsService);
     getPublicTransactions(query: TransactionQueryDto): Promise<{
-        data: import("../transactions/dto/transaction-response.dto").TransactionResponseDto[];
+        data: {
+            id: any;
+            date: any;
+            type: any;
+            amount: number;
+            description: any;
+            category: any;
+            accountId: any;
+            fundCategoryId: any;
+            attachmentUrl: any;
+            createdBy: any;
+            createdAt: any;
+            updatedAt: any;
+            user: any;
+            account: any;
+            fundCategory: any;
+        }[];
         pagination: {
             total: number;
             skip: number;
@@ -23,6 +39,22 @@ export declare class PublicController {
         expense: number;
         balance: number;
         totalTransactions: number;
-        transactions: import("../transactions/dto/transaction-response.dto").TransactionResponseDto[];
+        transactions: {
+            id: any;
+            date: any;
+            type: any;
+            amount: number;
+            description: any;
+            category: any;
+            accountId: any;
+            fundCategoryId: any;
+            attachmentUrl: any;
+            createdBy: any;
+            createdAt: any;
+            updatedAt: any;
+            user: any;
+            account: any;
+            fundCategory: any;
+        }[];
     }>;
 }

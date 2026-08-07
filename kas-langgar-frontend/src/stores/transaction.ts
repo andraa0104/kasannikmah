@@ -8,6 +8,11 @@ interface Transaction {
   amount: string
   description: string | null
   category: string
+  accountId?: number
+  fundCategoryId?: number
+  attachmentUrl?: string | null
+  account?: any
+  fundCategory?: any
   createdBy: number
   createdAt: string
   updatedAt: string
@@ -63,6 +68,15 @@ export const useTransactionStore = defineStore('transaction', {
       } catch (err: any) {
         console.error('Failed to fetch summary:', err)
       }
+    },
+
+    async uploadProof(file: File) {
+      const formData = new FormData()
+      formData.append('file', file)
+      const res = await api.post('/transactions/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      })
+      return res.data.data.url
     },
 
     async createTransaction(data: any) {

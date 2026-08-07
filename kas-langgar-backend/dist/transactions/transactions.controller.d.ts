@@ -5,9 +5,44 @@ import { TransactionQueryDto } from './dto/transaction-query.dto';
 export declare class TransactionsController {
     private readonly transactionsService;
     constructor(transactionsService: TransactionsService);
-    create(createTransactionDto: CreateTransactionDto, user: any): Promise<import("./dto/transaction-response.dto").TransactionResponseDto>;
+    uploadProof(file: any): {
+        url: string;
+    };
+    create(createTransactionDto: CreateTransactionDto, user: any): Promise<{
+        id: any;
+        date: any;
+        type: any;
+        amount: number;
+        description: any;
+        category: any;
+        accountId: any;
+        fundCategoryId: any;
+        attachmentUrl: any;
+        createdBy: any;
+        createdAt: any;
+        updatedAt: any;
+        user: any;
+        account: any;
+        fundCategory: any;
+    }>;
     findAll(query: TransactionQueryDto): Promise<{
-        data: import("./dto/transaction-response.dto").TransactionResponseDto[];
+        data: {
+            id: any;
+            date: any;
+            type: any;
+            amount: number;
+            description: any;
+            category: any;
+            accountId: any;
+            fundCategoryId: any;
+            attachmentUrl: any;
+            createdBy: any;
+            createdAt: any;
+            updatedAt: any;
+            user: any;
+            account: any;
+            fundCategory: any;
+        }[];
         pagination: {
             total: number;
             skip: number;
@@ -22,9 +57,57 @@ export declare class TransactionsController {
         expense: number;
         balance: number;
         totalTransactions: number;
-        transactions: import("./dto/transaction-response.dto").TransactionResponseDto[];
+        transactions: {
+            id: any;
+            date: any;
+            type: any;
+            amount: number;
+            description: any;
+            category: any;
+            accountId: any;
+            fundCategoryId: any;
+            attachmentUrl: any;
+            createdBy: any;
+            createdAt: any;
+            updatedAt: any;
+            user: any;
+            account: any;
+            fundCategory: any;
+        }[];
     }>;
-    findOne(id: number): Promise<import("./dto/transaction-response.dto").TransactionResponseDto>;
-    update(id: number, updateTransactionDto: UpdateTransactionDto, user: any): Promise<import("./dto/transaction-response.dto").TransactionResponseDto>;
+    findOne(id: number): Promise<{
+        id: any;
+        date: any;
+        type: any;
+        amount: number;
+        description: any;
+        category: any;
+        accountId: any;
+        fundCategoryId: any;
+        attachmentUrl: any;
+        createdBy: any;
+        createdAt: any;
+        updatedAt: any;
+        user: any;
+        account: any;
+        fundCategory: any;
+    }>;
+    update(id: number, updateTransactionDto: UpdateTransactionDto, user: any): Promise<{
+        id: any;
+        date: any;
+        type: any;
+        amount: number;
+        description: any;
+        category: any;
+        accountId: any;
+        fundCategoryId: any;
+        attachmentUrl: any;
+        createdBy: any;
+        createdAt: any;
+        updatedAt: any;
+        user: any;
+        account: any;
+        fundCategory: any;
+    }>;
     remove(id: number, user: any): Promise<void>;
 }

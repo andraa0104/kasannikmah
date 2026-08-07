@@ -18,29 +18,91 @@ let TransactionsService = class TransactionsService {
         this.prisma = prisma;
     }
     async create(createTransactionDto, userId) {
-        const { date, type, amount, description, category } = createTransactionDto;
+        const { date, type, amount, description, category, accountId, fundCategoryId, attachmentUrl } = createTransactionDto;
         const user = await this.prisma.user.findUnique({
             where: { id: userId }
         });
         if (!user) {
             throw new common_1.BadRequestException('User tidak ditemukan');
         }
-        const transaction = await this.prisma.transaction.create({
-            data: {
-                date: new Date(date),
-                type,
-                amount: parseFloat(amount.toString()),
-                description,
-                category,
-                createdBy: userId
-            },
-            include: {
-                user: {
-                    select: { id: true, name: true, username: true }
+        let targetAccount = accountId
+            ? await this.prisma.account.findUnique({ where: { id: accountId } })
+            : await this.prisma.account.findFirst({ where: { isDefault: true } });
+        if (!targetAccount) {
+            targetAccount = await this.prisma.account.findFirst();
+        }
+        let targetFund = fundCategoryId
+            ? await this.prisma.fundCategory.findUnique({ where: { id: fundCategoryId } })
+            : await this.prisma.fundCategory.findFirst({ where: { code: 'FUND_GEN' } });
+        if (!targetFund) {
+            targetFund = await this.prisma.fundCategory.findFirst();
+        }
+        const numAmount = parseFloat(amount.toString());
+        return this.prisma.$transaction(async (tx) => {
+            const entryCount = await tx.journalEntry.count();
+            const entryNumber = `JRN-TRX-${Date.now()}-${entryCount + 1}`;
+            const assetChart = targetAccount
+                ? await tx.accountChart.findFirst({ where: { name: { contains: targetAccount.name } } }) || await tx.accountChart.findFirst({ where: { code: '101' } })
+                : await tx.accountChart.findFirst({ where: { code: '101' } });
+            const revenueOrExpenseChart = type === 'INCOME'
+                ? await tx.accountChart.findFirst({ where: { type: 'REVENUE' } }) || await tx.accountChart.findFirst({ where: { code: '401' } })
+                : await tx.accountChart.findFirst({ where: { type: 'EXPENSE' } }) || await tx.accountChart.findFirst({ where: { code: '501' } });
+            const assetChartId = assetChart ? assetChart.id : 1;
+            const revExpChartId = revenueOrExpenseChart ? revenueOrExpenseChart.id : 1;
+            const journalEntry = await tx.journalEntry.create({
+                data: {
+                    entryNumber,
+                    date: new Date(date),
+                    description: description || `${type === 'INCOME' ? 'Pemasukan' : 'Pengeluaran'}: ${category}`,
+                    refType: 'TRANSACTION',
+                    items: {
+                        create: type === 'INCOME'
+                            ? [
+                                { chartId: assetChartId, debit: numAmount, credit: 0 },
+                                { chartId: revExpChartId, debit: 0, credit: numAmount }
+                            ]
+                            : [
+                                { chartId: revExpChartId, debit: numAmount, credit: 0 },
+                                { chartId: assetChartId, debit: 0, credit: numAmount }
+                            ]
+                    }
+                }
+            });
+            const transaction = await tx.transaction.create({
+                data: {
+                    date: new Date(date),
+                    type,
+                    amount: numAmount,
+                    description,
+                    category,
+                    accountId: targetAccount ? targetAccount.id : null,
+                    fundCategoryId: targetFund ? targetFund.id : null,
+                    attachmentUrl,
+                    journalEntryId: journalEntry.id,
+                    createdBy: userId
+                },
+                include: {
+                    user: { select: { id: true, name: true, username: true } },
+                    account: true,
+                    fundCategory: true
+                }
+            });
+            if (targetAccount) {
+                if (type === 'INCOME') {
+                    await tx.account.update({
+                        where: { id: targetAccount.id },
+                        data: { balance: { increment: numAmount } }
+                    });
+                }
+                else {
+                    await tx.account.update({
+                        where: { id: targetAccount.id },
+                        data: { balance: { decrement: numAmount } }
+                    });
                 }
             }
+            return this.toTransactionResponseDto(transaction);
         });
-        return this.toTransactionResponseDto(transaction);
     }
     async findAll(query) {
         const { month, year, type, skip = '0', take = '10' } = query;
@@ -65,9 +127,9 @@ let TransactionsService = class TransactionsService {
         const transactions = await this.prisma.transaction.findMany({
             where,
             include: {
-                user: {
-                    select: { id: true, name: true, username: true }
-                }
+                user: { select: { id: true, name: true, username: true } },
+                account: true,
+                fundCategory: true
             },
             orderBy: { date: 'desc' },
             skip: parseInt(skip),
@@ -87,9 +149,9 @@ let TransactionsService = class TransactionsService {
         const transaction = await this.prisma.transaction.findUnique({
             where: { id },
             include: {
-                user: {
-                    select: { id: true, name: true, username: true }
-                }
+                user: { select: { id: true, name: true, username: true } },
+                account: true,
+                fundCategory: true
             }
         });
         if (!transaction) {
@@ -107,22 +169,44 @@ let TransactionsService = class TransactionsService {
         if (transaction.createdBy !== userId && userRole !== 'ADMIN') {
             throw new common_1.ForbiddenException('Anda tidak bisa update transaksi orang lain');
         }
-        const updated = await this.prisma.transaction.update({
-            where: { id },
-            data: {
-                ...updateTransactionDto,
-                date: updateTransactionDto.date ? new Date(updateTransactionDto.date) : undefined,
-                amount: updateTransactionDto.amount
-                    ? parseFloat(updateTransactionDto.amount.toString())
-                    : undefined
-            },
-            include: {
-                user: {
-                    select: { id: true, name: true, username: true }
+        const oldAmount = Number(transaction.amount);
+        const oldType = transaction.type;
+        const oldAccountId = transaction.accountId;
+        const newAmount = updateTransactionDto.amount !== undefined ? parseFloat(updateTransactionDto.amount.toString()) : oldAmount;
+        const newType = updateTransactionDto.type || oldType;
+        const newAccountId = updateTransactionDto.accountId || oldAccountId;
+        return this.prisma.$transaction(async (tx) => {
+            if (oldAccountId) {
+                if (oldType === 'INCOME') {
+                    await tx.account.update({ where: { id: oldAccountId }, data: { balance: { decrement: oldAmount } } });
+                }
+                else {
+                    await tx.account.update({ where: { id: oldAccountId }, data: { balance: { increment: oldAmount } } });
                 }
             }
+            const updated = await tx.transaction.update({
+                where: { id },
+                data: {
+                    ...updateTransactionDto,
+                    date: updateTransactionDto.date ? new Date(updateTransactionDto.date) : undefined,
+                    amount: newAmount
+                },
+                include: {
+                    user: { select: { id: true, name: true, username: true } },
+                    account: true,
+                    fundCategory: true
+                }
+            });
+            if (newAccountId) {
+                if (newType === 'INCOME') {
+                    await tx.account.update({ where: { id: newAccountId }, data: { balance: { increment: newAmount } } });
+                }
+                else {
+                    await tx.account.update({ where: { id: newAccountId }, data: { balance: { decrement: newAmount } } });
+                }
+            }
+            return this.toTransactionResponseDto(updated);
         });
-        return this.toTransactionResponseDto(updated);
     }
     async remove(id, userId, userRole) {
         const transaction = await this.prisma.transaction.findUnique({
@@ -134,8 +218,20 @@ let TransactionsService = class TransactionsService {
         if (transaction.createdBy !== userId && userRole !== 'ADMIN') {
             throw new common_1.ForbiddenException('Anda tidak bisa delete transaksi orang lain');
         }
-        await this.prisma.transaction.delete({
-            where: { id }
+        return this.prisma.$transaction(async (tx) => {
+            if (transaction.accountId) {
+                const amount = Number(transaction.amount);
+                if (transaction.type === 'INCOME') {
+                    await tx.account.update({ where: { id: transaction.accountId }, data: { balance: { decrement: amount } } });
+                }
+                else {
+                    await tx.account.update({ where: { id: transaction.accountId }, data: { balance: { increment: amount } } });
+                }
+            }
+            if (transaction.journalEntryId) {
+                await tx.journalEntry.delete({ where: { id: transaction.journalEntryId } }).catch(() => { });
+            }
+            await tx.transaction.delete({ where: { id } });
         });
     }
     async getMonthlySummary(month, year) {
@@ -146,15 +242,12 @@ let TransactionsService = class TransactionsService {
         const endDate = new Date(year, month, 0, 23, 59, 59);
         const transactions = await this.prisma.transaction.findMany({
             where: {
-                date: {
-                    gte: startDate,
-                    lte: endDate
-                }
+                date: { gte: startDate, lte: endDate }
             },
             include: {
-                user: {
-                    select: { id: true, name: true }
-                }
+                user: { select: { id: true, name: true } },
+                account: true,
+                fundCategory: true
             },
             orderBy: { date: 'asc' }
         });
@@ -164,21 +257,9 @@ let TransactionsService = class TransactionsService {
         const expense = transactions
             .filter(t => t.type === 'EXPENSE')
             .reduce((sum, t) => sum + parseFloat(t.amount.toString()), 0);
-        const aggregates = await this.prisma.transaction.groupBy({
-            by: ['type'],
-            _sum: {
-                amount: true
-            }
-        });
-        let allTimeIncome = 0;
-        let allTimeExpense = 0;
-        aggregates.forEach(agg => {
-            if (agg.type === 'INCOME')
-                allTimeIncome = Number(agg._sum.amount || 0);
-            if (agg.type === 'EXPENSE')
-                allTimeExpense = Number(agg._sum.amount || 0);
-        });
-        const balance = allTimeIncome - allTimeExpense;
+        const accounts = await this.prisma.account.findMany({ where: { isActive: true } });
+        let balance = 0;
+        accounts.forEach(a => balance += Number(a.balance));
         return {
             month,
             year,
@@ -208,10 +289,15 @@ let TransactionsService = class TransactionsService {
             amount: parseFloat(transaction.amount.toString()),
             description: transaction.description,
             category: transaction.category,
+            accountId: transaction.accountId,
+            fundCategoryId: transaction.fundCategoryId,
+            attachmentUrl: transaction.attachmentUrl,
             createdBy: transaction.createdBy,
             createdAt: transaction.createdAt,
             updatedAt: transaction.updatedAt,
-            user: transaction.user
+            user: transaction.user,
+            account: transaction.account,
+            fundCategory: transaction.fundCategory
         };
     }
 };
