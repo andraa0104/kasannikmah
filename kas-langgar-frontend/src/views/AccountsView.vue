@@ -69,136 +69,152 @@
       </v-table>
     </v-card>
 
-    <!-- Modal Tambah Rekening (iOS 26 Liquid Glass) -->
-    <v-dialog v-model="showAccountModal" max-width="480">
-      <v-card class="pa-6" :class="isDarkTheme ? 'theme-dark-modal' : 'theme-light-modal'">
-        <v-card-title class="font-weight-bold text-h6 pa-0 mb-4 d-flex align-center justify-space-between" :class="isDarkTheme ? 'text-white' : 'text-black'">
-          <span>Tambah Rekening / Kas Baru</span>
-          <v-btn icon="mdi-close" variant="text" size="small" :color="isDarkTheme ? 'white' : 'grey-darken-2'" @click="showAccountModal = false"></v-btn>
-        </v-card-title>
-        <v-card-text class="pa-0">
-          <v-form @submit.prevent="handleCreateAccount">
-            <v-text-field 
-              v-model="accountForm.name" 
-              label="Nama Kas / Rekening" 
-              variant="outlined" 
-              density="compact" 
-              required 
-              class="mb-3"
-              rounded="xl"
-            ></v-text-field>
+    <!-- Modal Tambah Rekening -->
+    <v-dialog v-model="showAccountModal" max-width="480" :theme="isDarkTheme ? 'dark' : 'light'">
+      <v-card class="pa-6 rounded-xl modal-card-fixed" :class="isDarkTheme ? 'modal-dark' : 'modal-light'">
+        <div class="d-flex align-center justify-space-between mb-4">
+          <h3 class="text-h6 font-weight-bold modal-title">Tambah Rekening / Kas Baru</h3>
+          <v-btn icon="mdi-close" variant="text" size="small" :color="isDarkTheme ? 'white' : 'black'" @click="showAccountModal = false"></v-btn>
+        </div>
 
-            <v-select 
-              v-model="accountForm.type" 
-              :items="accountTypes" 
-              label="Tipe Rekening" 
-              variant="outlined" 
-              density="compact" 
-              required 
-              class="mb-3"
-              rounded="xl"
-            ></v-select>
+        <v-form @submit.prevent="handleCreateAccount">
+          <v-text-field 
+            v-model="accountForm.name" 
+            label="Nama Kas / Rekening" 
+            variant="outlined" 
+            density="compact" 
+            required 
+            class="mb-3"
+            rounded="lg"
+            :bg-color="isDarkTheme ? 'rgba(255,255,255,0.05)' : '#F5F7FA'"
+            :base-color="isDarkTheme ? 'white' : 'black'"
+          ></v-text-field>
 
-            <v-text-field 
-              v-if="accountForm.type === 'BANK'" 
-              v-model="accountForm.bankName" 
-              label="Nama Bank (Misal: BSI, Mandiri)" 
-              variant="outlined" 
-              density="compact" 
-              class="mb-3"
-              rounded="xl"
-            ></v-text-field>
+          <v-select 
+            v-model="accountForm.type" 
+            :items="accountTypes" 
+            label="Tipe Rekening" 
+            variant="outlined" 
+            density="compact" 
+            required 
+            class="mb-3"
+            rounded="lg"
+            :bg-color="isDarkTheme ? 'rgba(255,255,255,0.05)' : '#F5F7FA'"
+            :base-color="isDarkTheme ? 'white' : 'black'"
+          ></v-select>
 
-            <v-text-field 
-              v-if="accountForm.type === 'BANK'" 
-              v-model="accountForm.accountNumber" 
-              label="Nomor Rekening" 
-              variant="outlined" 
-              density="compact" 
-              class="mb-3"
-              rounded="xl"
-            ></v-text-field>
+          <v-text-field 
+            v-if="accountForm.type === 'BANK'" 
+            v-model="accountForm.bankName" 
+            label="Nama Bank (Misal: BSI, Mandiri)" 
+            variant="outlined" 
+            density="compact" 
+            class="mb-3"
+            rounded="lg"
+            :bg-color="isDarkTheme ? 'rgba(255,255,255,0.05)' : '#F5F7FA'"
+            :base-color="isDarkTheme ? 'white' : 'black'"
+          ></v-text-field>
 
-            <v-text-field 
-              v-model.number="accountForm.balance" 
-              label="Saldo Awal (Rp)" 
-              type="number" 
-              variant="outlined" 
-              density="compact" 
-              class="mb-3"
-              rounded="xl"
-            ></v-text-field>
+          <v-text-field 
+            v-if="accountForm.type === 'BANK'" 
+            v-model="accountForm.accountNumber" 
+            label="Nomor Rekening" 
+            variant="outlined" 
+            density="compact" 
+            class="mb-3"
+            rounded="lg"
+            :bg-color="isDarkTheme ? 'rgba(255,255,255,0.05)' : '#F5F7FA'"
+            :base-color="isDarkTheme ? 'white' : 'black'"
+          ></v-text-field>
 
-            <div class="d-flex justify-end gap-2 mt-6">
-              <v-btn variant="tonal" rounded="pill" class="px-5" @click="showAccountModal = false">Batal</v-btn>
-              <v-btn color="primary" variant="flat" type="submit" :loading="loading" rounded="pill" class="px-6 font-weight-bold">Simpan Rekening</v-btn>
-            </div>
-          </v-form>
-        </v-card-text>
+          <v-text-field 
+            v-model.number="accountForm.balance" 
+            label="Saldo Awal (Rp)" 
+            type="number" 
+            variant="outlined" 
+            density="compact" 
+            class="mb-3"
+            rounded="lg"
+            :bg-color="isDarkTheme ? 'rgba(255,255,255,0.05)' : '#F5F7FA'"
+            :base-color="isDarkTheme ? 'white' : 'black'"
+          ></v-text-field>
+
+          <div class="d-flex justify-end gap-2 mt-6">
+            <v-btn variant="tonal" :color="isDarkTheme ? 'white' : 'grey-darken-3'" rounded="pill" class="px-5" @click="showAccountModal = false">Batal</v-btn>
+            <v-btn color="primary" variant="flat" type="submit" :loading="loading" rounded="pill" class="px-6 font-weight-bold">Simpan Rekening</v-btn>
+          </div>
+        </v-form>
       </v-card>
     </v-dialog>
 
-    <!-- Modal Transfer Saldo (iOS 26 Liquid Glass) -->
-    <v-dialog v-model="showTransferModal" max-width="480">
-      <v-card class="pa-6" :class="isDarkTheme ? 'theme-dark-modal' : 'theme-light-modal'">
-        <v-card-title class="font-weight-bold text-h6 pa-0 mb-4 d-flex align-center justify-space-between" :class="isDarkTheme ? 'text-white' : 'text-black'">
-          <span>Transfer Saldo Antar Rekening</span>
-          <v-btn icon="mdi-close" variant="text" size="small" :color="isDarkTheme ? 'white' : 'grey-darken-2'" @click="showTransferModal = false"></v-btn>
-        </v-card-title>
-        <v-card-text class="pa-0">
-          <v-form @submit.prevent="handleTransfer">
-            <v-select 
-              v-model="transferForm.sourceAccountId" 
-              :items="accountStore.accounts" 
-              item-title="name" 
-              item-value="id" 
-              label="Dari Rekening (Asal)" 
-              variant="outlined" 
-              density="compact" 
-              required 
-              class="mb-3"
-              rounded="xl"
-            ></v-select>
+    <!-- Modal Transfer Saldo -->
+    <v-dialog v-model="showTransferModal" max-width="480" :theme="isDarkTheme ? 'dark' : 'light'">
+      <v-card class="pa-6 rounded-xl modal-card-fixed" :class="isDarkTheme ? 'modal-dark' : 'modal-light'">
+        <div class="d-flex align-center justify-space-between mb-4">
+          <h3 class="text-h6 font-weight-bold modal-title">Transfer Saldo Antar Rekening</h3>
+          <v-btn icon="mdi-close" variant="text" size="small" :color="isDarkTheme ? 'white' : 'black'" @click="showTransferModal = false"></v-btn>
+        </div>
 
-            <v-select 
-              v-model="transferForm.targetAccountId" 
-              :items="accountStore.accounts" 
-              item-title="name" 
-              item-value="id" 
-              label="Ke Rekening (Tujuan)" 
-              variant="outlined" 
-              density="compact" 
-              required 
-              class="mb-3"
-              rounded="xl"
-            ></v-select>
+        <v-form @submit.prevent="handleTransfer">
+          <v-select 
+            v-model="transferForm.sourceAccountId" 
+            :items="accountStore.accounts" 
+            item-title="name" 
+            item-value="id" 
+            label="Dari Rekening (Asal)" 
+            variant="outlined" 
+            density="compact" 
+            required 
+            class="mb-3"
+            rounded="lg"
+            :bg-color="isDarkTheme ? 'rgba(255,255,255,0.05)' : '#F5F7FA'"
+            :base-color="isDarkTheme ? 'white' : 'black'"
+          ></v-select>
 
-            <v-text-field 
-              v-model.number="transferForm.amount" 
-              label="Jumlah Transfer (Rp)" 
-              type="number" 
-              variant="outlined" 
-              density="compact" 
-              required 
-              class="mb-3"
-              rounded="xl"
-            ></v-text-field>
+          <v-select 
+            v-model="transferForm.targetAccountId" 
+            :items="accountStore.accounts" 
+            item-title="name" 
+            item-value="id" 
+            label="Ke Rekening (Tujuan)" 
+            variant="outlined" 
+            density="compact" 
+            required 
+            class="mb-3"
+            rounded="lg"
+            :bg-color="isDarkTheme ? 'rgba(255,255,255,0.05)' : '#F5F7FA'"
+            :base-color="isDarkTheme ? 'white' : 'black'"
+          ></v-select>
 
-            <v-text-field 
-              v-model="transferForm.description" 
-              label="Keterangan Transfer" 
-              variant="outlined" 
-              density="compact" 
-              class="mb-3"
-              rounded="xl"
-            ></v-text-field>
+          <v-text-field 
+            v-model.number="transferForm.amount" 
+            label="Jumlah Transfer (Rp)" 
+            type="number" 
+            variant="outlined" 
+            density="compact" 
+            required 
+            class="mb-3"
+            rounded="lg"
+            :bg-color="isDarkTheme ? 'rgba(255,255,255,0.05)' : '#F5F7FA'"
+            :base-color="isDarkTheme ? 'white' : 'black'"
+          ></v-text-field>
 
-            <div class="d-flex justify-end gap-2 mt-6">
-              <v-btn variant="tonal" rounded="pill" class="px-5" @click="showTransferModal = false">Batal</v-btn>
-              <v-btn color="secondary" variant="flat" type="submit" :loading="loading" rounded="pill" class="px-6 font-weight-bold">Transfer Sekarang</v-btn>
-            </div>
-          </v-form>
-        </v-card-text>
+          <v-text-field 
+            v-model="transferForm.description" 
+            label="Keterangan Transfer" 
+            variant="outlined" 
+            density="compact" 
+            class="mb-3"
+            rounded="lg"
+            :bg-color="isDarkTheme ? 'rgba(255,255,255,0.05)' : '#F5F7FA'"
+            :base-color="isDarkTheme ? 'white' : 'black'"
+          ></v-text-field>
+
+          <div class="d-flex justify-end gap-2 mt-6">
+            <v-btn variant="tonal" :color="isDarkTheme ? 'white' : 'grey-darken-3'" rounded="pill" class="px-5" @click="showTransferModal = false">Batal</v-btn>
+            <v-btn color="secondary" variant="flat" type="submit" :loading="loading" rounded="pill" class="px-6 font-weight-bold">Transfer Sekarang</v-btn>
+          </div>
+        </v-form>
       </v-card>
     </v-dialog>
   </div>
@@ -286,5 +302,64 @@ const formatDate = (dateStr: string) => {
 }
 .gap-3 {
   gap: 12px;
+}
+
+/* Explicit Modal Scoped Styling for Pure White Light Mode */
+.modal-light {
+  background-color: #FFFFFF !important;
+  color: #121212 !important;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+.modal-light .modal-title {
+  color: #121212 !important;
+}
+
+.modal-light :deep(.v-card-text),
+.modal-light :deep(label),
+.modal-light :deep(span) {
+  color: #121212 !important;
+}
+
+.modal-light :deep(.v-field) {
+  background-color: #F5F7FA !important;
+  color: #121212 !important;
+  border-color: rgba(0, 0, 0, 0.2) !important;
+}
+
+.modal-light :deep(.v-field__input) {
+  color: #121212 !important;
+}
+
+.modal-light :deep(.v-label) {
+  color: #444444 !important;
+  opacity: 1 !important;
+}
+
+.modal-dark {
+  background-color: #1E222B !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+.modal-dark .modal-title {
+  color: #FFFFFF !important;
+}
+
+.modal-dark :deep(.v-card-text),
+.modal-dark :deep(label),
+.modal-dark :deep(span) {
+  color: #FFFFFF !important;
+}
+
+.modal-dark :deep(.v-field) {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  color: #FFFFFF !important;
+}
+
+.modal-dark :deep(.v-field__input) {
+  color: #FFFFFF !important;
 }
 </style>
