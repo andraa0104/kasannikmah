@@ -8,10 +8,10 @@
       </div>
 
       <div class="d-flex gap-3 mt-4 mt-md-0">
-        <v-btn color="secondary" prepend-icon="mdi-swap-horizontal" rounded="pill" elevation="2" @click="showTransferModal = true">
+        <v-btn color="secondary" prepend-icon="mdi-swap-horizontal" rounded="pill" elevation="4" @click="showTransferModal = true">
           Transfer Saldo
         </v-btn>
-        <v-btn color="primary" prepend-icon="mdi-plus" rounded="pill" elevation="2" @click="showAccountModal = true">
+        <v-btn color="primary" prepend-icon="mdi-plus" rounded="pill" elevation="4" @click="showAccountModal = true">
           Tambah Rekening
         </v-btn>
       </div>
@@ -20,10 +20,7 @@
     <!-- Cards Grid -->
     <v-row class="mb-6">
       <v-col v-for="acc in accountStore.accounts" :key="acc.id" cols="12" sm="6" md="4">
-        <v-card 
-          class="pa-6 rounded-xl border h-100 position-relative"
-          :class="isDarkTheme ? 'glass-card text-white border-dark' : 'bg-white text-black border-light elevation-2'"
-        >
+        <v-card class="glass-card pa-6 h-100 position-relative">
           <div class="d-flex justify-space-between align-start mb-4">
             <div>
               <v-chip size="x-small" :color="acc.type === 'CASH' ? 'success' : 'primary'" class="mb-2 font-weight-bold">
@@ -45,10 +42,7 @@
     </v-row>
 
     <!-- Table Transfer History -->
-    <v-card 
-      class="pa-6 rounded-xl border"
-      :class="isDarkTheme ? 'glass-card border-dark' : 'bg-white border-light elevation-2'"
-    >
+    <v-card class="glass-card pa-6">
       <h3 class="text-h6 font-weight-bold mb-4" :class="isDarkTheme ? 'text-white' : 'text-black'">Riwayat Transfer Antar Rekening</h3>
       <v-table :theme="isDarkTheme ? 'dark' : 'light'" class="bg-transparent">
         <thead>
@@ -75,12 +69,9 @@
       </v-table>
     </v-card>
 
-    <!-- Modal Tambah Rekening -->
+    <!-- Modal Tambah Rekening (iOS 26 Liquid Glass) -->
     <v-dialog v-model="showAccountModal" max-width="480">
-      <v-card 
-        class="rounded-xl pa-6 elevation-12"
-        :class="isDarkTheme ? 'bg-grey-darken-3 text-white' : 'bg-white text-black'"
-      >
+      <v-card class="glass-modal pa-6">
         <v-card-title class="font-weight-bold text-h6 pa-0 mb-4 d-flex align-center justify-space-between" :class="isDarkTheme ? 'text-white' : 'text-black'">
           <span>Tambah Rekening / Kas Baru</span>
           <v-btn icon="mdi-close" variant="text" size="small" :color="isDarkTheme ? 'white' : 'grey-darken-2'" @click="showAccountModal = false"></v-btn>
@@ -94,7 +85,7 @@
               density="compact" 
               required 
               class="mb-3"
-              rounded="lg"
+              rounded="xl"
             ></v-text-field>
 
             <v-select 
@@ -105,7 +96,7 @@
               density="compact" 
               required 
               class="mb-3"
-              rounded="lg"
+              rounded="xl"
             ></v-select>
 
             <v-text-field 
@@ -115,7 +106,7 @@
               variant="outlined" 
               density="compact" 
               class="mb-3"
-              rounded="lg"
+              rounded="xl"
             ></v-text-field>
 
             <v-text-field 
@@ -125,7 +116,7 @@
               variant="outlined" 
               density="compact" 
               class="mb-3"
-              rounded="lg"
+              rounded="xl"
             ></v-text-field>
 
             <v-text-field 
@@ -135,11 +126,11 @@
               variant="outlined" 
               density="compact" 
               class="mb-3"
-              rounded="lg"
+              rounded="xl"
             ></v-text-field>
 
             <div class="d-flex justify-end gap-2 mt-6">
-              <v-btn variant="tonal" :color="isDarkTheme ? 'white' : 'grey-darken-1'" rounded="pill" class="px-5" @click="showAccountModal = false">Batal</v-btn>
+              <v-btn variant="tonal" rounded="pill" class="px-5" @click="showAccountModal = false">Batal</v-btn>
               <v-btn color="primary" variant="flat" type="submit" :loading="loading" rounded="pill" class="px-6 font-weight-bold">Simpan Rekening</v-btn>
             </div>
           </v-form>
@@ -147,12 +138,9 @@
       </v-card>
     </v-dialog>
 
-    <!-- Modal Transfer Saldo -->
+    <!-- Modal Transfer Saldo (iOS 26 Liquid Glass) -->
     <v-dialog v-model="showTransferModal" max-width="480">
-      <v-card 
-        class="rounded-xl pa-6 elevation-12"
-        :class="isDarkTheme ? 'bg-grey-darken-3 text-white' : 'bg-white text-black'"
-      >
+      <v-card class="glass-modal pa-6">
         <v-card-title class="font-weight-bold text-h6 pa-0 mb-4 d-flex align-center justify-space-between" :class="isDarkTheme ? 'text-white' : 'text-black'">
           <span>Transfer Saldo Antar Rekening</span>
           <v-btn icon="mdi-close" variant="text" size="small" :color="isDarkTheme ? 'white' : 'grey-darken-2'" @click="showTransferModal = false"></v-btn>
@@ -169,7 +157,7 @@
               density="compact" 
               required 
               class="mb-3"
-              rounded="lg"
+              rounded="xl"
             ></v-select>
 
             <v-select 
@@ -182,7 +170,7 @@
               density="compact" 
               required 
               class="mb-3"
-              rounded="lg"
+              rounded="xl"
             ></v-select>
 
             <v-text-field 
@@ -193,7 +181,7 @@
               density="compact" 
               required 
               class="mb-3"
-              rounded="lg"
+              rounded="xl"
             ></v-text-field>
 
             <v-text-field 
@@ -202,11 +190,11 @@
               variant="outlined" 
               density="compact" 
               class="mb-3"
-              rounded="lg"
+              rounded="xl"
             ></v-text-field>
 
             <div class="d-flex justify-end gap-2 mt-6">
-              <v-btn variant="tonal" :color="isDarkTheme ? 'white' : 'grey-darken-1'" rounded="pill" class="px-5" @click="showTransferModal = false">Batal</v-btn>
+              <v-btn variant="tonal" rounded="pill" class="px-5" @click="showTransferModal = false">Batal</v-btn>
               <v-btn color="secondary" variant="flat" type="submit" :loading="loading" rounded="pill" class="px-6 font-weight-bold">Transfer Sekarang</v-btn>
             </div>
           </v-form>
@@ -293,17 +281,6 @@ const formatDate = (dateStr: string) => {
 </script>
 
 <style scoped>
-.glass-card {
-  background: rgba(255, 255, 255, 0.05) !important;
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-.border-dark {
-  border-color: rgba(255, 255, 255, 0.12) !important;
-}
-.border-light {
-  border-color: rgba(0, 0, 0, 0.12) !important;
-}
 .gap-2 {
   gap: 8px;
 }

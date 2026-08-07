@@ -1,5 +1,5 @@
 /* Global Styles */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
   font-family: 'Inter', sans-serif;
@@ -11,14 +11,14 @@ body {
   background: #121212; /* Dark theme default */
 }
 
-/* Glassmorphism Classes */
-/* Liquid Glass (iOS 26 Style) */
+/* Glassmorphism Classes (iOS 26 / macOS Liquid Glass Style) */
 .glass-panel {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%) !important;
   backdrop-filter: blur(40px) saturate(250%) contrast(1.1);
   -webkit-backdrop-filter: blur(40px) saturate(250%) contrast(1.1);
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 12px 40px rgba(0, 0, 0, 0.4);
+  border-radius: 24px;
 }
 
 .glass-card {
@@ -36,6 +36,16 @@ body {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.03) 100%) !important;
   box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.3), 0 16px 48px rgba(0, 0, 0, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* iOS 26 Liquid Glass Modal Dialog */
+.glass-modal {
+  background: linear-gradient(135deg, rgba(30, 35, 45, 0.85) 0%, rgba(18, 20, 26, 0.92) 100%) !important;
+  backdrop-filter: blur(50px) saturate(240%) contrast(1.05);
+  -webkit-backdrop-filter: blur(50px) saturate(240%) contrast(1.05);
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 28px !important;
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.25), 0 24px 64px rgba(0, 0, 0, 0.6) !important;
 }
 
 /* Scrollbar Styling for Liquid feel */
@@ -71,36 +81,45 @@ body {
   opacity: 0;
 }
 
-/* Light Theme Overrides */
+/* Light Theme Overrides (iOS / macOS Light Glass) */
 .v-theme--light.v-application {
-  background: #F5F7FA !important;
+  background: #F2F4F8 !important;
 }
 
 .v-theme--light .glass-panel {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.4) 100%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.9), 0 8px 32px rgba(31, 38, 135, 0.07);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0.45) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 1), 0 8px 32px rgba(31, 38, 135, 0.07);
 }
 
 .v-theme--light .glass-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.5) 100%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 1), 0 8px 32px rgba(31, 38, 135, 0.05);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.6) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 1), 0 8px 32px rgba(31, 38, 135, 0.06);
 }
 
 .v-theme--light .glass-card:hover {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.6) 100%) !important;
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 1), 0 12px 48px rgba(31, 38, 135, 0.1);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.75) 100%) !important;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 1), 0 16px 48px rgba(31, 38, 135, 0.12);
   border: 1px solid rgba(255, 255, 255, 1);
+}
+
+.v-theme--light .glass-modal {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.92) 0%, rgba(245, 247, 250, 0.95) 100%) !important;
+  backdrop-filter: blur(50px) saturate(200%);
+  -webkit-backdrop-filter: blur(50px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 1) !important;
+  border-radius: 28px !important;
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 1), 0 24px 64px rgba(31, 38, 135, 0.12) !important;
 }
 
 /* Fix text colors that were forced to white in dark theme */
 .v-theme--light .text-white {
-  color: #121212 !important;
+  color: #1A1C1E !important;
 }
 .v-theme--light .text-grey-lighten-1 {
-  color: #616161 !important;
+  color: #5F6368 !important;
 }
 .v-theme--light .text-grey {
-  color: #757575 !important;
+  color: #6E7175 !important;
 }

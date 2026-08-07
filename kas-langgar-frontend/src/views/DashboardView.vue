@@ -280,13 +280,12 @@
       </div>
     </div>
 
-    <!-- Add Transaction Dialog -->
+    <!-- Add Transaction Dialog (iOS 26 Liquid Glass) -->
     <v-dialog v-model="dialog" max-width="500" persistent>
-      <v-card class="glass-card border-0" style="backdrop-filter: blur(50px) saturate(250%);">
-        <v-card-title class="pa-6 pb-2 text-h5 font-weight-bold text-white d-flex align-center">
-          Tambah Transaksi
-          <v-spacer></v-spacer>
-          <v-btn icon="mdi-close" variant="text" color="white" size="small" @click="dialog = false"></v-btn>
+      <v-card class="glass-modal pa-6">
+        <v-card-title class="pa-0 mb-4 text-h5 font-weight-bold d-flex align-center justify-space-between" :class="isDarkTheme ? 'text-white' : 'text-black'">
+          <span>Tambah Transaksi</span>
+          <v-btn icon="mdi-close" variant="text" size="small" :color="isDarkTheme ? 'white' : 'grey-darken-2'" @click="dialog = false"></v-btn>
         </v-card-title>
         <v-card-text class="pa-6 pt-2">
           <v-form @submit.prevent="saveTransaction" ref="formRef">
