@@ -225,7 +225,7 @@ import { useTheme } from 'vuetify'
 import { useReportStore } from '../stores/report'
 
 const theme = useTheme()
-const isDarkTheme = computed(() => theme.global.name.value === 'dark' || theme.global.current.value.dark)
+const isDarkTheme = computed(() => theme.global.name.value === 'dark')
 
 const reportStore = useReportStore()
 const tab = ref('balance')
