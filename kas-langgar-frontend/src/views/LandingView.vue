@@ -366,13 +366,19 @@
                   {{ item.type === 'INCOME' ? '+' : '-' }}{{ formatCurrency(item.amount) }}
                 </span>
               </template>
+              <template #no-data>
+                <div class="pa-8 text-center text-grey">
+                  <v-icon size="48" color="grey-lighten-1" class="mb-2 d-block mx-auto">mdi-inbox-outline</v-icon>
+                  <div>{{ search ? 'Data tidak ditemukan' : 'Belum ada transaksi di bulan ini' }}</div>
+                </div>
+              </template>
             </v-data-table>
 
             <!-- Mobile View: List View -->
             <div v-else class="pa-4">
               <div v-if="paginatedTransactions.length === 0 && !loading" class="text-center py-8">
                 <v-icon size="48" color="grey-lighten-1" class="mb-4">mdi-file-search-outline</v-icon>
-                <div class="text-body-1 text-grey">Data tidak ditemukan</div>
+                <div class="text-body-1 text-grey">{{ search ? 'Data tidak ditemukan' : 'Belum ada transaksi di bulan ini' }}</div>
               </div>
               
               <v-card 
@@ -424,11 +430,6 @@
                   ></v-select>
                 </div>
               </div>
-            </div>
-
-            <div v-if="!loading && transactions.length === 0 && !search" class="text-center pa-8">
-              <v-icon size="48" color="grey-lighten-1" class="mb-4">mdi-inbox-outline</v-icon>
-              <div class="text-h6 font-weight-medium text-grey">Belum ada transaksi di bulan ini</div>
             </div>
           </div>
         </template>
