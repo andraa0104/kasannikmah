@@ -53,12 +53,12 @@
                   <div v-show="!rail" class="text-wrap" style="line-height: 1.2;">Dashboard</div>
                 </template>
               </v-list-item>
-              <v-list-item prepend-icon="mdi-file-chart" value="reports" :to="{ name: 'reports' }" color="primary" class="rounded-lg mb-1">
+              <v-list-item v-if="authStore.hasPermission('reports:read')" prepend-icon="mdi-file-chart" value="reports" :to="{ name: 'reports' }" color="primary" class="rounded-lg mb-1">
                 <template v-slot:title>
                   <div v-show="!rail" class="text-wrap" style="line-height: 1.2;">Laporan & Jurnal</div>
                 </template>
               </v-list-item>
-              <v-list-item prepend-icon="mdi-bank" value="accounts" :to="{ name: 'accounts' }" color="primary" class="rounded-lg mb-1">
+              <v-list-item v-if="authStore.hasPermission('accounts:read')" prepend-icon="mdi-bank" value="accounts" :to="{ name: 'accounts' }" color="primary" class="rounded-lg mb-1">
                 <template v-slot:title>
                   <div v-show="!rail" class="text-wrap" style="line-height: 1.2;">Kas & Rekening</div>
                 </template>

@@ -233,6 +233,13 @@ const permissionGroups = [
       { label: 'Ubah Transaksi', value: 'transactions:update' },
       { label: 'Hapus Transaksi', value: 'transactions:delete' }
   ]},
+  { name: 'Laporan & Jurnal', permissions: [
+      { label: 'Lihat Laporan & Jurnal', value: 'reports:read' }
+  ]},
+  { name: 'Kas & Rekening', permissions: [
+      { label: 'Lihat Rekening Bank', value: 'accounts:read' },
+      { label: 'Kelola & Transfer Saldo', value: 'accounts:manage' }
+  ]},
   { name: 'Pengurus', permissions: [
       { label: 'Lihat Pengurus', value: 'users:read' },
       { label: 'Tambah Pengurus', value: 'users:create' },

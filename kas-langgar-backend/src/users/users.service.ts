@@ -27,11 +27,11 @@ export class UsersService {
     let finalPermissions = permissions
     if (!finalPermissions) {
       if (role === 'ADMIN') {
-        finalPermissions = ['dashboard:read', 'transactions:read', 'transactions:create', 'transactions:update', 'transactions:delete', 'users:read', 'users:create', 'users:update', 'users:delete', 'settings:read']
+        finalPermissions = ['dashboard:read', 'transactions:read', 'transactions:create', 'transactions:update', 'transactions:delete', 'reports:read', 'accounts:read', 'accounts:manage', 'users:read', 'users:create', 'users:update', 'users:delete', 'settings:read']
       } else if (role === 'BENDAHARA') {
-        finalPermissions = ['dashboard:read', 'transactions:read', 'transactions:create', 'transactions:update', 'settings:read']
+        finalPermissions = ['dashboard:read', 'transactions:read', 'transactions:create', 'transactions:update', 'reports:read', 'accounts:read', 'accounts:manage', 'settings:read']
       } else {
-        finalPermissions = ['dashboard:read', 'transactions:read', 'settings:read']
+        finalPermissions = ['dashboard:read', 'transactions:read', 'reports:read', 'settings:read']
       }
     }
 
