@@ -70,8 +70,8 @@
     </v-card>
 
     <!-- Modal Tambah Rekening (iOS 26 Liquid Glass) -->
-    <v-dialog v-model="showAccountModal" max-width="480" :theme="isDarkTheme ? 'dark' : 'light'">
-      <v-card class="glass-modal pa-6" :theme="isDarkTheme ? 'dark' : 'light'">
+    <v-dialog v-model="showAccountModal" max-width="480">
+      <v-card class="pa-6" :class="isDarkTheme ? 'theme-dark-modal' : 'theme-light-modal'">
         <v-card-title class="font-weight-bold text-h6 pa-0 mb-4 d-flex align-center justify-space-between" :class="isDarkTheme ? 'text-white' : 'text-black'">
           <span>Tambah Rekening / Kas Baru</span>
           <v-btn icon="mdi-close" variant="text" size="small" :color="isDarkTheme ? 'white' : 'grey-darken-2'" @click="showAccountModal = false"></v-btn>
@@ -139,8 +139,8 @@
     </v-dialog>
 
     <!-- Modal Transfer Saldo (iOS 26 Liquid Glass) -->
-    <v-dialog v-model="showTransferModal" max-width="480" :theme="isDarkTheme ? 'dark' : 'light'">
-      <v-card class="glass-modal pa-6" :theme="isDarkTheme ? 'dark' : 'light'">
+    <v-dialog v-model="showTransferModal" max-width="480">
+      <v-card class="pa-6" :class="isDarkTheme ? 'theme-dark-modal' : 'theme-light-modal'">
         <v-card-title class="font-weight-bold text-h6 pa-0 mb-4 d-flex align-center justify-space-between" :class="isDarkTheme ? 'text-white' : 'text-black'">
           <span>Transfer Saldo Antar Rekening</span>
           <v-btn icon="mdi-close" variant="text" size="small" :color="isDarkTheme ? 'white' : 'grey-darken-2'" @click="showTransferModal = false"></v-btn>

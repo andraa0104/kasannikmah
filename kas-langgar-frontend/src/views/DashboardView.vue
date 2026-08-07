@@ -282,7 +282,7 @@
 
     <!-- Add Transaction Dialog (iOS 26 Liquid Glass) -->
     <v-dialog v-model="dialog" max-width="500" persistent>
-      <v-card class="glass-modal pa-6">
+      <v-card class="pa-6" :class="isDarkTheme ? 'theme-dark-modal' : 'theme-light-modal'">
         <v-card-title class="pa-0 mb-4 text-h5 font-weight-bold d-flex align-center justify-space-between" :class="isDarkTheme ? 'text-white' : 'text-black'">
           <span>Tambah Transaksi</span>
           <v-btn icon="mdi-close" variant="text" size="small" :color="isDarkTheme ? 'white' : 'grey-darken-2'" @click="dialog = false"></v-btn>
