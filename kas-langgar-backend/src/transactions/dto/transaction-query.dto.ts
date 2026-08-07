@@ -1,5 +1,5 @@
 import { IsOptional, IsEnum, IsNumberString } from 'class-validator'
-import { TransactionType } from '@prisma/client'
+import { TransactionType } from '../../generated/prisma'
 
 export class TransactionQueryDto {
   @IsOptional()

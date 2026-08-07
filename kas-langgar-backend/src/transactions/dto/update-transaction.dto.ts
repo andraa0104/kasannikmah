@@ -1,5 +1,5 @@
 import { IsDateString, IsEnum, IsString, IsOptional, Min, IsInt } from 'class-validator'
-import { TransactionType } from '@prisma/client'
+import { TransactionType } from '../../generated/prisma'
 import { Type } from 'class-transformer'
 
 export class UpdateTransactionDto {

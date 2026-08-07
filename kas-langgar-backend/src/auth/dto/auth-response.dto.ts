@@ -1,4 +1,4 @@
-import { Role } from '@prisma/client'
+import { Role } from '../../generated/prisma'
 
 export class AuthResponseDto {
   access_token: string

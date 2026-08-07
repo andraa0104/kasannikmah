@@ -1,5 +1,5 @@
 import { IsString, MinLength, IsEnum } from 'class-validator'
-import { Role } from '@prisma/client'
+import { Role } from '../../generated/prisma'
 
 export class RegisterDto {
   @IsString()
